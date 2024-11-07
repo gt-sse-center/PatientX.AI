@@ -23,8 +23,8 @@ PatientX.AI offers:
 ## Project Structure
 ```
 PatientX.AI/
-├── existing_code/          # folder to hold code prior to work with GT CSSE
-│   ├──legacy_Data_sempling_topic_modeling.r # R script for running pipeline
+├── existing_code/                            # folder to hold code prior to work with GT CSSE
+│   ├──legacy_Data_sempling_topic_modeling.r  # R script for running pipeline
 └── README.md     
 ```
 
