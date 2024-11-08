@@ -1,4 +1,28 @@
-setwd("~/Downloads/2024-04-04")
+# setwd("~/Downloads/2024-04-04")
+setwd(file.path(getwd(), "data"))
+print(getwd())        # Print the current working directory
+print(list.files())   # List files in the current directory
+
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+
+mem.maxVSize(Inf)
+mem.maxNSize(Inf)
+
+# brew install gsl
+# export LDFLAGS="-L/opt/homebrew/opt/gsl/lib"
+# export CPPFLAGS="-I/opt/homebrew/opt/gsl/include"
+# install.packages("reshape2")
+
+# install.packages("topicmodels")
+# install.packages("tm")
+# install.packages("SnowballC")
+# install.packages("wordcloud")
+# install.packages("RColorBrewer")
+# install.packages("syuzhet")
+# install.packages("ggplot2")
+# install.packages("dplyr")
+# install.packages("tidytext")
+# install.packages("forcats")
 
 # Loading the libraries
 
@@ -17,6 +41,8 @@ library(dplyr)
 library(tidytext)
 
 library(forcats)
+library(reshape2)
+
 
 # DATAFILE AND SAMPLING
 
@@ -35,7 +61,8 @@ forum_data_union <- rbind(data_say_hello, data_recently_diagnosed, data_memory_c
 
 # >> Sample from forum_data_union
 
-sample_size <- 500 
+# sample_size <- 500 
+sample_size <- 50 
 
 sample_data <- forum_data_union[sample(nrow(forum_data_union), sample_size),, drop = FALSE]
 
@@ -46,7 +73,8 @@ write.csv(sample_data, "sample_data_final_fixed.csv", row.names = FALSE)
 
 subset_data <- forum_data_union[forum_data_union$message_nr == 1, ]
 
-sample_size <- 500 
+# sample_size <- 500 
+sample_size <- 50 
 
 sample_data_first_thread_post_only <- subset_data[sample(nrow(subset_data), sample_size),, drop = FALSE]
 
@@ -75,6 +103,10 @@ data_review2 <- forum_data_union %>%
   unnest_tokens(word, post_message) %>%
   anti_join(stop_words)
 
+# After creating intermediate datasets that are no longer needed, you can use rm() to remove them from memory, then call gc() to trigger garbage collection:
+rm(forum_data_union)
+gc()
+
 # count the words again
 data_review2 %>%
   count(word) %>%
@@ -84,6 +116,7 @@ data_review2 %>%
 # >> data visualization
 
 # count the words and arrange them in descending order 
+print("count the words and arrange them in descending order to see which words occur more frequently")
 word_counts <- data_review2 %>%
   count(word) %>%
   filter(n>1000) %>% #number can be changed
@@ -93,23 +126,27 @@ word_counts <- data_review2 %>%
 # using coord_flip()
 # when data are hard to read
 # on the x axis
+print("pass the word_count to gg plot function and flip the axis to see frequency of words")
 ggplot(word_counts, aes(x=word, y=n)) + 
   geom_col() +
   coord_flip() +
   ggtitle("Forum Word Counts")
 
 # reorder what (word) by what (n)
+print("reorder what (word) by what (n)")
 word_counts <- data_review2 %>%
   count(word) %>%
   filter(n>1900) %>% #number can be changed
   mutate(word2 = fct_reorder(word, n))
 
+print("word_counts")
 word_counts
 
 # now this plot
 # with new ordered column x = word2
 # is arranged by word count
 # and is far better to read:
+print("now this plot with new ordered column x = word2 is arranged by word count and is far better to read")
 ggplot(word_counts, aes(x=word2, y=n)) + 
   geom_col() +
   coord_flip() +
@@ -118,14 +155,44 @@ ggplot(word_counts, aes(x=word2, y=n)) +
 # >> topic modeling
 
 # using as.matrix()
-dtm_review <- data_review2 %>%
-  count(word, word) %>%  # count each word used in each identified review 
-  cast_dtm(word, word, n) %>%  # use the word counts by reviews  to create a DTM
-  as.matrix()
+print("Creating Document-Term Matrix (DTM) from the processed data...")
+# dtm_review <- data_review2 %>%
+#   count(word, word) %>%  # count each word used in each identified review 
+#   cast_dtm(word, word, n) %>%  # use the word counts by reviews  to create a DTM
+#   as.matrix()
 
+# Step 1: Reduce the vocabulary size
+print("Filtering out rare and frequent words to reduce memory usage...")
+data_review_filtered <- data_review2 %>%
+  count(word) %>%
+  filter(n > 2, n < 5000)  # Keep only words that are not too rare or too frequent
+
+# Use the filtered vocabulary to count word occurrences per document
+print("Counting the frequency of each word in each document...")
+dtm_review <- data_review2 %>%
+  filter(word %in% data_review_filtered$word) %>%
+  count(document = 1:n(), word) %>%  # Assuming 'document' is a unique identifier for each document
+  cast_sparse(document, word, n)  # Use a sparse matrix representation
+
+print("Document-Term Matrix created successfully in sparse format.")
+
+# Proceed with LDA
+print("Performing LDA with the reduced and optimized DTM...")
+lda_out <- LDA(
+  dtm_review,
+  k = 2,
+  method = "Gibbs",
+  control = list(seed = 42)
+)
+
+# Inspect the resulting LDA topics
+print("LDA model completed. Inspecting the topics...")
+lda_topics <- tidy(lda_out, matrix = "beta")
+print(head(lda_topics))
 # perform LDA,
 # k is the number of topics we want to produce,
 # specifying the simulation seed helps recover consistent topics
+print("perform LDA, k is the number of topics we want to produce, specifying the simulation seed helps recover consistent topics")
 lda_out <- LDA(
   dtm_review,
   k = 2,
