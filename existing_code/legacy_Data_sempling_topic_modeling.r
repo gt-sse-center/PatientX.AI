@@ -7,12 +7,14 @@ options(repos = c(CRAN = "https://cloud.r-project.org"))
 
 mem.maxVSize(Inf)
 mem.maxNSize(Inf)
-
+# install folliging packages
 # brew install gsl
+# set exports on the command line
 # export LDFLAGS="-L/opt/homebrew/opt/gsl/lib"
 # export CPPFLAGS="-I/opt/homebrew/opt/gsl/include"
-# install.packages("reshape2")
 
+
+# install.packages("reshape2")
 # install.packages("topicmodels")
 # install.packages("tm")
 # install.packages("SnowballC")
