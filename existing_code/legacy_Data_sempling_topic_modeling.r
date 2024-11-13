@@ -1,5 +1,5 @@
 # setwd("~/Downloads/2024-04-04")
-setwd(file.path(getwd(), "data"))
+setwd(file.path(getwd(), "../data"))
 print(getwd())        # Print the current working directory
 print(list.files())   # List files in the current directory
 
