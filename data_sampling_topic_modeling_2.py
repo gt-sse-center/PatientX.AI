@@ -28,7 +28,7 @@ forum_data_union = pd.concat([data_say_hello, data_recently_diagnosed, data_memo
 
 # Sampling from the combined data
 # Sampling is done to reduce the data size and improve processing time
-sample_size = 100
+sample_size = 1000
 sample_data = forum_data_union.sample(n=sample_size, random_state=42)
 sample_data.to_csv("sample_data_final_fixed.csv", index=False)
 print("Sample data saved as 'sample_data_final_fixed.csv'\n")
@@ -66,7 +66,7 @@ print(f"Data after removing numbers: {forum_data_union['processed_text'].head()}
 # Filtering out rare and frequent words to reduce memory usage
 print("Filtering out rare and frequent words...")
 vectorizer = CountVectorizer(max_df=0.9, min_df=2, stop_words='english')
-X = vectorizer.fit_transform(forum_data_union['processed_text'][:20000])
+X = vectorizer.fit_transform(forum_data_union['processed_text'][:150000])
 print("Vectorizer vocabulary size:", len(vectorizer.vocabulary_))
 # Printing a small portion of the Document-Term Matrix to see its contents
 print("Inspecting part of the Document-Term Matrix (sparse matrix)...")
