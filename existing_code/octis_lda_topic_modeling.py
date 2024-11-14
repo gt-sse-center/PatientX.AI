@@ -2,16 +2,19 @@ from octis.models.LDA import LDA
 import pandas as pd
 import string
 from octis.preprocessing.preprocessing import Preprocessing
+import os
 
 print("reading data...")
 
+data_folder_path = os.path.join(os.getcwd(), "forum-crawler-data")
+
 # read data
-data_say_hello = pd.read_csv('/Users/vnarayan35/Documents/GitHub/PatientX.AI/existing_code/forum-crawler data/Say hello and introduce yourself.csv')
-data_recently_diagnosed = pd.read_csv('/Users/vnarayan35/Documents/GitHub/PatientX.AI/existing_code/forum-crawler data/Recently diagnosed and early stages of dementia.csv')
-data_memory_concerns = pd.read_csv("/Users/vnarayan35/Documents/GitHub/PatientX.AI/existing_code/forum-crawler data/Memory concerns and seeking a diagnosis.csv")
-data_i_have_dementia = pd.read_csv("/Users/vnarayan35/Documents/GitHub/PatientX.AI/existing_code/forum-crawler data/I have dementia.csv")
-data_i_have_partner = pd.read_csv("/Users/vnarayan35/Documents/GitHub/PatientX.AI/existing_code/forum-crawler data/I have a partner with dementia.csv")
-data_i_care = pd.read_csv("/Users/vnarayan35/Documents/GitHub/PatientX.AI/existing_code/forum-crawler data/I care for a person with dementia.csv")
+data_say_hello = pd.read_csv(os.path.join(data_folder_path, 'Say hello and introduce yourself.csv'))
+data_recently_diagnosed = pd.read_csv(os.path.join(data_folder_path, 'Recently diagnosed and early stages of dementia.csv'))
+data_memory_concerns = pd.read_csv(os.path.join(data_folder_path, 'Memory concerns and seeking a diagnosis.csv'))
+data_i_have_dementia = pd.read_csv(os.path.join(data_folder_path, 'I have dementia.csv'))
+data_i_have_partner = pd.read_csv(os.path.join(data_folder_path, 'I have a partner with dementia.csv'))
+data_i_care = pd.read_csv(os.path.join(data_folder_path, 'I care for a person with dementia.csv'))
 
 
 print("read data")
