@@ -1,3 +1,6 @@
 
 /existing_code/forum-crawler data
 /.idea
+/data
+
+!/data/README.md
