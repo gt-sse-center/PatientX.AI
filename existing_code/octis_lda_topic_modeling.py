@@ -6,7 +6,7 @@ import os
 
 print("reading data...")
 
-data_folder_path = os.path.join(os.getcwd(), "forum-crawler-data")
+data_folder_path = os.path.join(os.getcwd(), "forum-crawler data")
 
 # read data
 data_say_hello = pd.read_csv(os.path.join(data_folder_path, 'Say hello and introduce yourself.csv'))
@@ -52,7 +52,7 @@ dataset = preprocessor.preprocess_dataset(documents_path=r'./corpus.txt')
 print("done preprocessing")
 
 print("saving...")
-dataset.save(path='./processed_dataset/')
+dataset.save(path='../data/processed_dataset/')
 print("done saving")
 
 
