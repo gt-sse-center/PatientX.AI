@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class ClusteringModel(ABC):
+class ClusteringModelInterface(ABC):
     @abstractmethod
     def getClusters(self, documents):
         pass

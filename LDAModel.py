@@ -1,4 +1,4 @@
-from ClusteringModelInterface import ClusteringModel
+from ClusteringModelInterface import ClusteringModelInterface
 from octis.models.model import AbstractModel
 import numpy as np
 from gensim.models import ldamodel
@@ -8,7 +8,7 @@ import octis.configuration.defaults as defaults
 from gensim.models import TfidfModel
 
 
-class LDAModel(ClusteringModel, AbstractModel):
+class LDAModel(ClusteringModelInterface, AbstractModel):
     id2word = None
     id_corpus = None
     use_partitions = True
