@@ -25,25 +25,25 @@ class BERTopicModel(ClusteringModel, BERTopic):
         self.representation_model = representation_model
         self.verbose = verbose
 
-        self.model = super(self.__class__, self).__init__(language=language, top_n_words=top_n_words,
-                                                          n_gram_range=n_gram_range, min_topic_size=min_topic_size,
-                                                          nr_topics=nr_topics, low_memory=low_memory,
-                                                          calculate_probabilities=calculate_probabilities,
-                                                          seed_topic_list=seed_topic_list,
-                                                          zeroshot_topic_list=zeroshot_topic_list,
-                                                          zeroshot_min_similarity=zeroshot_min_similarity,
-                                                          embedding_model=embedding_model, umap_model=umap_model,
-                                                          hdbscan_model=hdbscan_model,
-                                                          vectorizer_model=vectorizer_model, ctfidf_model=ctfidf_model,
-                                                          representation_model=representation_model, verbose=verbose)
+        super().__init__(language=language, top_n_words=top_n_words,
+                         n_gram_range=n_gram_range, min_topic_size=min_topic_size,
+                         nr_topics=nr_topics, low_memory=low_memory,
+                         calculate_probabilities=calculate_probabilities,
+                         seed_topic_list=seed_topic_list,
+                         zeroshot_topic_list=zeroshot_topic_list,
+                         zeroshot_min_similarity=zeroshot_min_similarity,
+                         embedding_model=embedding_model, umap_model=umap_model,
+                         hdbscan_model=hdbscan_model,
+                         vectorizer_model=vectorizer_model, ctfidf_model=ctfidf_model,
+                         representation_model=representation_model, verbose=verbose)
 
     def getClusters(self, documents):
-        self.model.fit_transform(documents)
+        super().fit_transform(documents)
 
-        return self.model.get_topic_info()
+        return super().get_topic_info()
 
     def getModelType(self):
         return "BERTopic"
 
     def visualizeModel(self):
-        self.model.visualize_topics()
+        super().visualize_topics()
