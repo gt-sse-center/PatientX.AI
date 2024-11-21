@@ -37,13 +37,13 @@ class BERTopicModel(ClusteringModel, BERTopic):
                                                           vectorizer_model=vectorizer_model, ctfidf_model=ctfidf_model,
                                                           representation_model=representation_model, verbose=verbose)
 
-    def getClusters(self, data):
-        self.model.fit(data)
+    def getClusters(self, documents):
+        self.model.fit_transform(documents)
 
         return self.model.get_topic_info()
 
     def getModelType(self):
-        return "BertTopicModel"
+        return "BERTopic"
 
     def visualizeModel(self):
         self.model.visualize_topics()

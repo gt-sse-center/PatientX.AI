@@ -3,11 +3,7 @@ from abc import ABC, abstractmethod
 
 class ClusteringModel(ABC):
     @abstractmethod
-    def getClusters(self, data):
-        pass
-
-    @abstractmethod
-    def visualizeModel(self):
+    def getClusters(self, documents):
         pass
 
     @abstractmethod
