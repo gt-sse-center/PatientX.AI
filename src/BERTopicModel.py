@@ -1,5 +1,7 @@
 from ClusteringModelInterface import ClusteringModelInterface
 from bertopic import BERTopic
+from typing_extensions import override
+from pathlib import Path
 
 
 class BERTopicModel(ClusteringModelInterface, BERTopic):
@@ -37,11 +39,19 @@ class BERTopicModel(ClusteringModelInterface, BERTopic):
                          vectorizer_model=vectorizer_model, ctfidf_model=ctfidf_model,
                          representation_model=representation_model, verbose=verbose)
 
-    def getClusters(self, documents):
-        super().fit_transform(documents)
+    @override
+    def getClusters(self, datapath):
+        if Path(datapath).is_file():
+            with open(datapath, 'r', encoding='utf-8') as file:
+                documents = file.read().split('\n')  # Split on newline to get individual documents
 
-        return super().get_topic_info()
+            super().fit_transform(documents)
 
+            return super().get_topic_info()
+        else:
+            raise FileNotFoundError("The specified datapath does not exist")
+
+    @override
     def getModelType(self):
         return "BERTopic"
 

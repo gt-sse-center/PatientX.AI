@@ -1,3 +1,4 @@
+from typing_extensions import override
 from ClusteringModelInterface import ClusteringModelInterface
 from octis.models.model import AbstractModel
 import numpy as np
@@ -6,19 +7,15 @@ import gensim.corpora as corpora
 import octis.configuration.citations as citations
 import octis.configuration.defaults as defaults
 from gensim.models import TfidfModel
+from octis.preprocessing.preprocessing import Preprocessing
 
 
 class LDAModel(ClusteringModelInterface, AbstractModel):
-    id2word = None
-    id_corpus = None
-    use_partitions = True
-    update_with_test = False
-
     def __init__(
             self, num_topics=100, distributed=False, chunksize=2000,
             passes=1, update_every=1, alpha="symmetric", eta=None, decay=0.5,
             offset=1.0, eval_every=10, iterations=50, gamma_threshold=0.001,
-            random_state=None):
+            random_state=None, preprocessor: Preprocessing = None):
         """
         Initialize LDA model
 
@@ -88,6 +85,10 @@ class LDAModel(ClusteringModelInterface, AbstractModel):
 
         """
         super().__init__()
+        self.id2word = None
+        self.id_corpus = None
+        self.use_partitions = True
+        self.update_with_test = False
         self.hyperparameters = dict()
         self.hyperparameters["num_topics"] = num_topics
         self.hyperparameters["distributed"] = distributed
@@ -102,6 +103,7 @@ class LDAModel(ClusteringModelInterface, AbstractModel):
         self.hyperparameters["iterations"] = iterations
         self.hyperparameters["gamma_threshold"] = gamma_threshold
         self.hyperparameters["random_state"] = random_state
+        self.preprocessor = preprocessor
 
     def info(self):
         """
@@ -282,8 +284,11 @@ class LDAModel(ClusteringModelInterface, AbstractModel):
                 topic_document[topic_tuple[0]][ndoc] = topic_tuple[1]
         return topic_document
 
-    def getClusters(self, data):
-        return self.train_model(data)
+    @override
+    def getClusters(self, datapath):
+        dataset = self.preprocessor.preprocess_dataset(documents_path=r'./corpus_threads_combined.txt')
+        return self.train_model(dataset)
 
+    @override
     def getModelType(self):
         return "LDAModel"
