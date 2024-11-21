@@ -1,3 +1,4 @@
+
 # Moving Away from LDA: Adopting BERTopic and LLM-based Clustering
 
 ## Overview
@@ -15,6 +16,8 @@ LDA is a popular topic modeling technique that works well for many applications.
 - **Limited Coherence**: The topics produced by LDA often lack coherence and do not align well with human-understandable concepts. Many of the terms grouped into topics by LDA appeared unrelated or too generic to be useful for driving actionable insights.
 
 - **Rigid Bag-of-Words Model**: The traditional bag-of-words model used by LDA does not capture word relationships, meaning the insights generated were simplistic and often lacked depth.
+
+- **Need for Heavy Pre-Processing**: Forum threads often contain slang, abbreviations, typos, and informal grammar, making traditional pre-processing (e.g., stemming, lemmatization) less effective and prone to errors. LDA struggles in this context because its bag-of-words approach doesn’t account for the nuances of such informal language, leading to less coherent topics. In contrast, LLMs and BERTopic handle colloquial data more effectively by leveraging contextual embeddings that understand variations in language use and capture semantic meaning, even in noisy or informal text.
 
 ## Transition to BERTopic and LLM-based Clustering
 
