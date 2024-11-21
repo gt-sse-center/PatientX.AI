@@ -1,4 +1,4 @@
-from ClusteringModel import ClusteringModel
+from ClusteringModelInterface import ClusteringModel
 from octis.models.model import AbstractModel
 import numpy as np
 from gensim.models import ldamodel

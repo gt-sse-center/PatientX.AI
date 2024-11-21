@@ -1,4 +1,4 @@
-from ClusteringModel import ClusteringModel
+from ClusteringModelInterface import ClusteringModel
 from bertopic import BERTopic
 
 
