@@ -14,7 +14,7 @@ Static Visuals: Compared to modern visualizations, the interactions are limited 
 
 # DataMapPlot
 
-![alt text](metadatapplot.png)
+![alt text](datamapplot.png)
 
 DataMapPlot is a more recent visualization tool that can be seamlessly integrated with BERTopic to create interactive maps of topics and documents. It provides several unique features, including:
 
