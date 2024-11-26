@@ -58,8 +58,3 @@ The Python script `interact_with_mistral.py` is designed to interact with a runn
 
 ### Conclusion
 By following this guide, you should be able to successfully run **Mistral-Small** locally and interact with it using the provided Python script. This setup is key to utilizing Mistral-Small's capabilities for generating valuable summaries and insights from large datasets, enhancing the analysis of patient forum posts in the PatientX.AI project.
-
-
-#### Trouble Keeping Context
-
-One issue encountered during interactions with Mistral-Small is maintaining context across multiple requests. The interact_with_mistral.py script attempts to handle this by sending context information back with each new chunk of data. However, the current approach to managing context is not working effectively in this script, and it requires reworking to better handle large and complex conversations. Experimentation with different methods of summarizing or condensing the context may help improve coherence in the final output.
