@@ -42,7 +42,7 @@ def summarize_text(text, model_url, chunk_size=1024):
     # use both prompt and messages to be compatible with api/generate and api/chat
     context_prompt = "I am sending you a lot of scraped text from a forum online. Once I am done sending chunks, you will summarize everything I sent. After each chunck tell me you receive it and track how many I sent you."
     payload = {
-        "model": "mistral-small",
+        "model": model,
         "prompt": context_prompt,
                      "messages": [
                  { "role": "user", "content": context_prompt}
@@ -55,7 +55,7 @@ def summarize_text(text, model_url, chunk_size=1024):
         print(f"\n--- Sending chunk {i}/{len(chunks)} ---\n")
         prompt_chunk = f"I am sending you a chunk. Here is a chunk: {chunk}"
         payload = {
-            "model": "mistral-small",
+            "model": model,
             "prompt": prompt_chunk,
             "messages": [
                  { "role": "user", "content": prompt_chunk}
@@ -69,7 +69,7 @@ def summarize_text(text, model_url, chunk_size=1024):
     print("\n--- Requesting Final Summary ---\n")
     prompt_final = "I am done sending chunks. Please summarize everything I sent."
     payload = {
-        "model": "mistral-small",
+        "model": model,
         "prompt": prompt_final,
         "messages": [
                  { "role": "user", "content": prompt_final}
@@ -90,6 +90,9 @@ url = 'http://127.0.0.1:11434/api/generate'
 
 # Path to the smallest CSV file
 filepath = 'data/sample_data_first_thread_post_only.csv'
+
+# model to use
+model = "mistral-small"
 
 # Print the column names to identify the correct column to use
 print_column_names(filepath)
