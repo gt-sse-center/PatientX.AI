@@ -46,7 +46,7 @@ def load_and_preprocess_data(filepath):
     return " ".join(texts)  # Join all texts into a single string
 
 
-def summarize_text(text, model_url, chunk_size=700):
+def summarize_text(text, model_url, chunk_size=512):
     """Break text into chunks and send each to the LLM for summarization."""
     # Split the text into chunks of `chunk_size` words
     words = text.split()
