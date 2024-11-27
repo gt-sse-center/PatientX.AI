@@ -8,7 +8,6 @@ chat_messages = []
 
 def stream_response(url, payload):
     """Stream responses from a POST request."""
-    # print("payload:", payload)
     with requests.post(url, json=payload, stream=False) as response:
         if response.status_code == 200:
             for line in response.iter_lines():
@@ -16,7 +15,6 @@ def stream_response(url, payload):
                     try:
                         # Parse JSON and extract the 'response' field
                         data = json.loads(line.decode("utf-8"))
-                        # print(data)
                         if "context" in data:
                             context_list = data["context"]
                         if "message" in data:
@@ -53,11 +51,11 @@ def summarize_text(text, model_url, chunk_size=512):
     chunks = [
         " ".join(words[i : i + chunk_size]) for i in range(0, len(words), chunk_size)
     ][:7]
+    # only 7 chunks so that the context is not too long and it doens't take too long to run
 
-    # print(chunks[0])
     print(f"\n--- set up context ---\n")
     # use both prompt and messages to be compatible with api/generate and api/chat
-    context_prompt = "I am sending you a lot of scraped text from a forum online. Once I am done sending chunks, you will summarize everything I sent. After each chunck tell me you receive it and track how many I sent you."
+    context_prompt = "I am sending you a lot of scraped text from a forum online. Once I am done sending chunks, you will summarize everything I sent. After each chunk tell me you receive it and track how many I sent you."
     chat_messages.append({"role": "user", "content": context_prompt})
     payload = {
         "model": model,
