@@ -1,3 +1,7 @@
+from typing import List, Union
+
+import numpy as np
+
 from ClusteringModelInterface import ClusteringModelInterface
 from bertopic import BERTopic
 from typing_extensions import override
@@ -56,4 +60,47 @@ class BERTopicModel(ClusteringModelInterface, BERTopic):
         return "BERTopic"
 
     def visualizeModel(self):
+        """
+        Visualize topics, dendogram, word occurences bar chart, term score decline
+        :return: None
+        """
         super().visualize_topics()
+        # visualize hierarchy
+        super().visualize_hierarchy()
+
+        # visualize topic word scores
+        super().visualize_barchart()
+
+        # visualize term rank
+        super().visualize_term_rank()
+
+    def visualize_document_datamap(
+            self,
+            docs: List[str],
+            topics: List[int] = None,
+            embeddings: np.ndarray = None,
+            reduced_embeddings: np.ndarray = None,
+            custom_labels: Union[bool, str] = False,
+            title: str = "Documents and Topics",
+            sub_title: Union[str, None] = None,
+            width: int = 1200,
+            height: int = 1200,
+            **datamap_kwds,
+    ):
+        """
+        Display documents/clustering with datamapplot library
+        
+        :param docs: documents trained on
+        :param topics: topics learned
+        :param embeddings: embeddings of topics
+        :param reduced_embeddings: embeddings passed through dimensionality reduction
+        :param custom_labels: custom labels
+        :param title: plot title
+        :param sub_title: plot subtitle
+        :param width: plot width
+        :param height: plot height
+        :param datamap_kwds: datamap
+        :return: None
+        """
+        super().visualize_document_datamap(docs, topics, embeddings, reduced_embeddings, custom_labels, title,
+                                           sub_title, width, height, **datamap_kwds)
