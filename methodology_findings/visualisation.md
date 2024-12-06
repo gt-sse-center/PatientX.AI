@@ -14,7 +14,7 @@ Static Visuals: Compared to modern visualizations, the interactions are limited 
 
 # DataMapPlot
 
-![alt text](datamapplot.png)
+![alt text](images/datamapplot.png)
 
 DataMapPlot is a more recent visualization tool that can be seamlessly integrated with BERTopic to create interactive maps of topics and documents. It provides several unique features, including:
 
@@ -27,7 +27,7 @@ Scalability: It can handle large topic models better than older tools like pyLDA
 Why DataMapPlot is Preferred: DataMapPlot provides a modern, interactive experience that allows domain experts to explore how clusters evolve over time, making it an ideal choice for analyzing complex datasets such as patient experiences.
 
 # Gensim with Visualization Tools
-![alt text](gensim.png)
+![alt text](images/gensim.png)
 
 Gensim is a robust library widely used for topic modeling and document similarity analysis. While Gensim itself does not include visualization features, it can be paired with other tools to achieve this. Some common visualization strategies for Gensim include:
 
