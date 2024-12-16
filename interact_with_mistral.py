@@ -8,6 +8,8 @@ chat_messages = []
 
 def stream_response(url, payload):
     """Stream responses from a POST request."""
+
+    response_text = ""
     with requests.post(url, json=payload, stream=False) as response:
         if response.status_code == 200:
             for line in response.iter_lines():
@@ -21,17 +23,25 @@ def stream_response(url, payload):
                             print(
                                 data["message"]["content"], end=""
                             )  # print when api/generate is used
+
+                            response_text += data["message"]["content"]
+
                             chat_messages.append(data["message"])
                         if "response" in data:
                             print(
                                 data["response"], end=""
                             )  # print when api/chat is used
+
+                            response_text += data["response"]
+
+
                     except json.JSONDecodeError:
                         print(f"Failed to decode JSON: {line}")
         else:
             print(
                 f"Failed to retrieve response. Status Code: {response.status_code} Response: {response.text}"
             )
+    return response_text
 
 
 def load_and_preprocess_data(filepath):
@@ -43,6 +53,22 @@ def load_and_preprocess_data(filepath):
     )  # Drop missing values and convert to list
     return " ".join(texts)  # Join all texts into a single string
 
+
+def get_response(model, model_url, prompt, messages, generate):
+    payload = {
+        "model": model,
+        "prompt": prompt,
+        "messages": messages,
+    }
+
+    if generate:
+        payload = {
+            "model" : model,
+            "prompt" : prompt,
+        }
+
+
+    return stream_response(model_url, payload)
 
 def summarize_text(text, model_url, chunk_size=512):
     """Break text into chunks and send each to the LLM for summarization."""
@@ -98,23 +124,7 @@ def print_column_names(filepath):
     print("Column names:", data.columns.tolist())  # Print the column names
 
 
-# URL to the API
+# URLs to the API
+
 # url = 'http://127.0.0.1:11434/api/generate'
-url = "http://127.0.0.1:11434/api/chat"
-
-# Path to the smallest CSV file
-filepath = "data/sample_data_first_thread_post_only.csv"
-
-# model to use
-model = "mistral-small"
-# model = "llama3.2"
-
-# Print the column names to identify the correct column to use
-print_column_names(filepath)
-
-
-# Load and preprocess the data
-text = load_and_preprocess_data(filepath)
-
-# Summarize the text
-summarize_text(text, url)
+# url = "http://127.0.0.1:11434/api/chat"
