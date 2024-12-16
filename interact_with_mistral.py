@@ -11,7 +11,6 @@ def stream_response(url, payload):
 
     response_text = ""
     with requests.post(url, json=payload, stream=False) as response:
-        print(response.text)
         if response.status_code == 200:
             for line in response.iter_lines():
                 if line:
@@ -125,23 +124,7 @@ def print_column_names(filepath):
     print("Column names:", data.columns.tolist())  # Print the column names
 
 
-# URL to the API
+# URLs to the API
+
 # url = 'http://127.0.0.1:11434/api/generate'
 # url = "http://127.0.0.1:11434/api/chat"
-#
-# # Path to the smallest CSV file
-# filepath = "data/sample_data_first_thread_post_only.csv"
-#
-# # model to use
-# model = "mistral-small"
-# # model = "llama3.2"
-#
-# # Print the column names to identify the correct column to use
-# print_column_names(filepath)
-#
-#
-# # Load and preprocess the data
-# text = load_and_preprocess_data(filepath)
-#
-# # Summarize the text
-# summarize_text(text, url)
