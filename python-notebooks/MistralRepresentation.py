@@ -44,6 +44,15 @@ Based on the information above, extract a short topic label in the following for
 topic: <topic label>
 """
 
+DEFAULT_PROMPT = """
+here are documents:
+[DOCUMENTS]
+The topic is described by the following keywords: [KEYWORDS]
+I need you to write "The topic is:" then print a short description of the documents in markdown format. 
+"""
+
+DEFAULT_PROMPT = DEFAULT_PROMPT
+
 class MistralRepresentation(BaseRepresentation):
     def __init__(
         self,
@@ -59,7 +68,6 @@ class MistralRepresentation(BaseRepresentation):
         tokenizer: Union[str, Callable] = None,
     ):
         self.model = model
-
         if prompt is None:
             self.prompt = DEFAULT_CHAT_PROMPT if chat else DEFAULT_PROMPT
         else:
@@ -118,10 +126,33 @@ class MistralRepresentation(BaseRepresentation):
             model = "mistral-small"
             url = "http://127.0.0.1:11434/api/generate"
 
-            label = get_response(model, url, prompt, messages=prompt, generate=True)
-            updated_topics[topic] = [(label, 1)]
+            # label = get_response(model, url, prompt, messages=prompt, generate=True)
+            response = get_response(model, url, prompt, messages=prompt, generate=True)
+
+            # Extract the topic name from the response
+            topic_name = self._extract_topic_name(response)
+            updated_topics[topic] = [(topic_name, 1)]
+            # updated_topics[topic] = [(label, 1)]
 
         return updated_topics
+    
+    def _extract_topic_name(self, response: str) -> str:
+        """Extract the topic name from the response.
+
+        Arguments:
+            response: The response from the Mistral model
+
+        Returns:
+            topic_name: The extracted topic name
+        """
+        # Assuming the response format is consistent and the topic name is prefixed with "Topic: "
+        topic_prefix = "Topic: "
+        if topic_prefix in response:
+            topic_name = response.split(topic_prefix)[1].strip()
+            return topic_name
+        else:
+            # Fallback to returning the entire response if the prefix is not found
+            return response.strip()
 
     def _create_prompt(self, docs, topic, topics):
         keywords = list(zip(*topics[topic]))[0]
