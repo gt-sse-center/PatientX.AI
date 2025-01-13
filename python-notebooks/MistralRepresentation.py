@@ -180,7 +180,6 @@ class MistralRepresentation(BaseRepresentation):
             # Extract the topic name from the response
             topic_name = self._extract_topic_name(response)
             updated_topics[topic] = [(topic_name, 1)]
-            # updated_topics[topic] = [(label, 1)]
 
         return updated_topics
     
