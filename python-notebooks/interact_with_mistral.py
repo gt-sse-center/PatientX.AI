@@ -54,18 +54,18 @@ def load_and_preprocess_data(filepath):
     return " ".join(texts)  # Join all texts into a single string
 
 
-def get_response(model, model_url, prompt, messages, generate):
+def get_response(model, model_url, prompt, messages):
     payload = {
         "model": model,
         "prompt": prompt,
         "messages": messages,
     }
 
-    if generate:
-        payload = {
-            "model" : model,
-            "prompt" : prompt,
-        }
+    # if "generate" in model_url:
+    #     payload = {
+    #         "model" : model,
+    #         "prompt" : prompt,
+    #     }
 
 
     return stream_response(model_url, payload)
@@ -83,6 +83,7 @@ def summarize_text(text, model_url, chunk_size=512):
     # use both prompt and messages to be compatible with api/generate and api/chat
     context_prompt = "I am sending you a lot of scraped text from a forum online. Once I am done sending chunks, you will summarize everything I sent. After each chunk tell me you receive it and track how many I sent you."
     chat_messages.append({"role": "user", "content": context_prompt})
+    model="mistral-small"
     payload = {
         "model": model,
         "prompt": context_prompt,
