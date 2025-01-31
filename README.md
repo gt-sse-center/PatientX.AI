@@ -7,6 +7,8 @@ PatientX.AI is a tool designed to analyze and visualize patient experiences alon
 - [Overview](#overview)
 - [Features](#features)
 - [Installation](#installation)
+- [Running Pipelines](#running-pipelines)
+- [Additional Documentation](#additional-documentation)
 
 ## Overview
 
@@ -24,6 +26,7 @@ PatientX.AI offers:
 ```
 PatientX.AI/
 ├── data/                                     # folder to hold data to be used by pipelines
+├── python-notebook/                          # hold python notebook and documentation
 ├── existing_code/                            # folder to hold code prior to work with GT CSSE
 │   ├──legacy_Data_sempling_topic_modeling.r  # R script for running pipeline
 └── README.md     
@@ -52,3 +55,8 @@ $> Rscript legacy_Data_sempling_topic_modeling.r
 ```
 
 **Note:** Before running the R pipeline, ensure that the required R packages are installed. Refer to the comments in the `legacy_Data_sempling_topic_modeling.r` file for package installation instructions.
+
+
+## Additional Documentation
+
+- [Running python notebook on Data](python-notebook/Run_LLM_on_server_how_to.md) - Instructions for running large language models for topic modeling.
