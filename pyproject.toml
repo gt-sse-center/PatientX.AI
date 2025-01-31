@@ -1,0 +1,21 @@
+[project]
+name = "PatientX"
+version = "0.1.0"
+
+license = { text = "MIT" }
+
+readme = "README.md"
+
+dependencies = [
+    "bertopic",
+    "spacy",
+    "datamapplot",
+]
+
+[project.scripts]
+my_tool = "repo.run:main"
+
+[project.urls]
+Homepage = "https://github.com/gt-sse-center/PatientX.AI"
+Documentation = "https://github.com/gt-sse-center/PatientX.AI"
+Repository = "https://github.com/gt-sse-center/PatientX.AI"
