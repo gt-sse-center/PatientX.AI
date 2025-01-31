@@ -5,15 +5,15 @@ This guide outlines the steps to set up and run **PatientX** on a server, includ
 
 ---
 
-1. **Download the Miniconda Installer**  
+**Download the Miniconda Installer**  
    Use \`curl\` or \`wget\` to download the Miniconda installer:
-   \`\`\`bash
+   ```bash
    curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-   \`\`\`
+   ```
    Or:
-   \`\`\`bash
+   ```bash
    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-   \`\`\`
+   ```
 
 ## 1. Specify a New Installation Directory
 
@@ -63,13 +63,8 @@ Once Miniconda is installed, create a Conda environment for **PatientX**:
    conda install notebook
    ```
 
-2. **Run Jupyter Notebook**  
-   Start the Jupyter Notebook server:
-   ```bash
-   jupyter notebook
-   ```
 
-3. **Install Required Libraries**  
+2. **Install Required Libraries**  
    Install `bertopic` and other dependencies:
    ```bash
    python -m pip install bertopic
