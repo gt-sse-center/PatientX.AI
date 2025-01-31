@@ -3,6 +3,7 @@ from typing import List, Union
 from pathlib import Path
 import os
 import pickle
+import yaml
 
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
@@ -71,28 +72,27 @@ def get_representation_model(nr_docs=10, document_diversity=0.1):
 
 
 def main():
+    with open("config.yaml", "r") as f:
+        config = yaml.safe_load(f)
+
     parser = argparse.ArgumentParser(description="A script with command-line arguments.")
-    parser.add_argument("-d", "--datapath", type=str, required=True, help="Path to data")
-    # parser.add_argument("-e", "--embeddings", type=str, help="Path to data embeddings")
-    # parser.add_argument("-r", "--result_path", type=str, required=True, help="Path to save results")
+    parser.add_argument("-d", "--datapath", type=str, default=config.get("datapath", "./data/"), help="Path to data")
+    parser.add_argument("-e", "--embeddings", type=str, default=config.get("embeddingspath", "./data/embeddings/"), help="Path to data embeddings")
+    parser.add_argument("-r", "--result_path", type=str, default=config.get("resultspath", "./output/"), help="Path to save results")
     # parser.add_argument("-im", "--images", action="store_true", help="Save visualizations")
-    # parser.add_argument("-lm", "--low_memory", action="store_true", help="Low memory flag")
-    parser.add_argument("-n", "--nr_docs", type=int, default=10,
+    parser.add_argument("-lm", "--low_memory", action="store_true", help="Low memory flag")
+    parser.add_argument("-n", "--nr_docs", type=int, default=config.get("nr_docs", 10),
                         help="Number of docs per topic to pass to representation model")
-    # parser.add_argument("-p", "--prompt", type=str, help="Prompt to pass to LLM")
-    parser.add_argument("-s", "--min_topic_size", type=int, default=100, help="Minimum topic size")
-    # parser.add_argument("-r", "--low-memory", action="store_true", help="Low memory flag")
+    parser.add_argument("-p", "--prompt", type=str, default=config.get("prompt", ""), help="Prompt to pass to LLM")
+    parser.add_argument("-s", "--min_topic_size", type=int, default=config.get("min_topic_size", 100), help="Minimum topic size")
     #
     # # bertopic options
-    # parser.add_argument("-", "--low-memory", action="store_true", help="Low memory flag")
     #
-    # parser.add_argument("-cl", "--clustering", type=str, choices=['hbdscan', 'kmeans', 'agglomerative'],
-    #                     default='hbdscan', help="Low memory flag")
+    parser.add_argument("-cl", "--clustering", type=str, choices=['hbdscan', 'kmeans', 'agglomerative'],
+                        default=config.get("clustering_model", "hdbscan"), help="Clustering algorithm")
     # parser.add_argument("-llm", "--llm", type=str, choices=['gpt4o', 'mistral-small'], help="Low memory flag")
-    # parser.add_argument("-dim", "--dim_reduction", type=str, choices=['pca', 'umap'], default='umap',
-    #                     help="Low memory flag")
-    # parser.add_argument("-r", "--low-memory", action="store_true", help="Low memory flag")
-    # parser.add_argument("-r", "--low-memory", action="store_true", help="Low memory flag")
+    parser.add_argument("-dim", "--dim_reduction", type=str, choices=['pca', 'umap'], default=config.get("dimensionality_reduction", "umap"),
+                        help="Dimensionality reduction algorithm")
 
     args = parser.parse_args()
 
@@ -107,7 +107,7 @@ def main():
                                    representation_model=representation_model)
 
     print("embeddings being generated")
-    # document_embeddings = medical_embedding_model.encode(documents)
+    document_embeddings = medical_embedding_model.encode(documents, show_progress_bar=True)
     # if args.embeddings is None:
     #     document_embeddings = medical_embedding_model.encode(dataset)
     #

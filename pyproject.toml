@@ -8,8 +8,10 @@ readme = "README.md"
 
 dependencies = [
     "bertopic",
-    "spacy",
     "datamapplot",
+    "numpy",
+    "pandas",
+    "spacy",
 ]
 
 [project.scripts]
