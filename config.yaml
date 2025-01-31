@@ -1,0 +1,12 @@
+datapath: "."
+resultpath: "."
+generate_visualizations: false
+low_memory: false
+nr_docs: 10
+prompt: None
+min_topic_size: 100
+clustering_model: hdbscan
+use_llm: true
+llm_model: mistral-small
+dimensionality_reduction: umap
+save_intermediate_results: false
