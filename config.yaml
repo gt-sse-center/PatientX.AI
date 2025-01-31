@@ -1,9 +1,10 @@
 datapath: "."
 resultpath: "."
+embeddingspath: ""
 generate_visualizations: false
 low_memory: false
 nr_docs: 10
-prompt: None
+prompt: "None"
 min_topic_size: 100
 clustering_model: hdbscan
 use_llm: true
