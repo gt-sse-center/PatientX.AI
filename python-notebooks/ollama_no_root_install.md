@@ -43,6 +43,6 @@ $BINDIR/ollama serve
 ```
 If needed, you can add it to your shell profile for easier access:
 ```bash
-echo 'export PATH="/nethome/rfievet3/USERSCRATCH/projects/ollama/bin:$PATH"' >> ~/.bashrc
+echo 'export PATH="/PATH/ollama/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 ```
