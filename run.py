@@ -79,6 +79,9 @@ def get_representation_model(nr_docs=10, document_diversity=0.1):
 
 
 def main():
+    if not os.path.isfile("config.yaml"):
+        raise Exception("Missing config yaml file")
+
     with open("config.yaml", "r") as f:
         config = yaml.safe_load(f)
 
