@@ -7,11 +7,12 @@ from bertopic.representation._base import BaseRepresentation
 from bertopic.representation._utils import truncate_document
 
 DEFAULT_PROMPT = """
-here are documents:
-[DOCUMENTS]
+I have topic that contains the following documents: \n[DOCUMENTS]
 The topic is described by the following keywords: [KEYWORDS]
-I need you to write "The topic is:" then print a short description of the documents in markdown format. 
+
+Based on the above information, can you give a short label of the topic?
 """
+
 
 DEFAULT_PROMPT_CHAT_START = """
 I will send you documents. After I send you the documents, I will ask you to write a short description of what is going on.
@@ -154,6 +155,7 @@ class MistralRepresentation(BaseRepresentation):
             prompt = self._create_prompt(truncated_docs, topic, topics)
             self.prompts_.append(prompt)
 
+            response = ""
             if self.api == "chat":
                 context_prompt = DEFAULT_PROMPT_CHAT_CONTEXT
                 # make loop for each truncated_docs so feed one prompt at a time
@@ -175,7 +177,7 @@ class MistralRepresentation(BaseRepresentation):
                 response = self.stream_response(url, payload)
 
             if self.api == "generate":
-                response = get_response(model, url, prompt, messages=prompt)
+                response = get_response(model, url, prompt, messages=prompt, generate=True)
 
             # Extract the topic name from the response
             topic_name = self._extract_topic_name(response)
