@@ -1,4 +1,5 @@
 import argparse
+import csv
 from pathlib import Path
 import os
 import pickle
@@ -35,14 +36,18 @@ def read_data(datafolder: Path):
                 pass
 
     full_dataset = pd.concat(dfs, ignore_index=True)
-    grouped_dataset = full_dataset.groupby(['forum', 'thread_title', 'message_nr'], as_index=False).agg(
-        {'post_message': ''.join})
+    cleaned_text = pd.DataFrame()
+    try:
+        grouped_dataset = full_dataset.groupby(['forum', 'thread_title', 'message_nr'], as_index=False).agg(
+            {'post_message': ''.join})
 
-    grouped_dataset['post_message'] = grouped_dataset['post_message'].str.strip().replace(r'\n', ' ', regex=True)
-    cleaned_text = grouped_dataset['post_message'].replace({r'\s+$': '', r'^\s+': ''}, regex=True).replace(r'\n', ' ',
+        grouped_dataset['post_message'] = grouped_dataset['post_message'].str.strip().replace(r'\n', ' ', regex=True)
+        cleaned_text = grouped_dataset['post_message'].replace({r'\s+$': '', r'^\s+': ''}, regex=True).replace(r'\n', ' ',
                                                                                                            regex=True)
-    cleaned_text = cleaned_text.replace(r'\t', ' ', regex=True)
-    cleaned_text = cleaned_text.replace(r'\r', ' ', regex=True)
+        cleaned_text = cleaned_text.replace(r'\t', ' ', regex=True)
+        cleaned_text = cleaned_text.replace(r'\r', ' ', regex=True)
+    except KeyError as e:
+        raise KeyError("Check README file for proper data format")
 
     return cleaned_text.tolist()
 
