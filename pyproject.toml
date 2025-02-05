@@ -18,6 +18,7 @@ dependencies = [
 my_tool = "repo.run:main"
 
 [project.urls]
+# NOTE: these links must be updated when transferring ownership
 Homepage = "https://github.com/gt-sse-center/PatientX.AI"
 Documentation = "https://github.com/gt-sse-center/PatientX.AI"
 Repository = "https://github.com/gt-sse-center/PatientX.AI"
