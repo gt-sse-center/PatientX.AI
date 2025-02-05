@@ -2,7 +2,7 @@ from typing import List, Union
 
 import numpy as np
 
-from ClusteringModelInterface import ClusteringModelInterface
+from PatientX.models.ClusteringModelInterface import ClusteringModelInterface
 from bertopic import BERTopic
 from typing_extensions import override
 from pathlib import Path

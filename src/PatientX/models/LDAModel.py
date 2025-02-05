@@ -1,5 +1,5 @@
 from typing_extensions import override
-from ClusteringModelInterface import ClusteringModelInterface
+from PatientX.models.ClusteringModelInterface import ClusteringModelInterface
 from octis.models.model import AbstractModel
 import numpy as np
 from gensim.models import ldamodel
