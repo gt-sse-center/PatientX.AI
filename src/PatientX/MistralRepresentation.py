@@ -1,4 +1,4 @@
-from PatientX.interact_with_mistral import *
+import requests
 import pandas as pd
 from tqdm import tqdm
 from scipy.sparse import csr_matrix
