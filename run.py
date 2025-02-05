@@ -86,7 +86,7 @@ def read_csv_files_in_directory(datafolder: Path):
     """
     dfs = []
 
-    if not os.path.isdir(datafolder):
+    if not datafolder.is_dir():
         raise NotADirectoryError("Data folder doesn't exist. Please check the filepath")
 
     for filename in datafolder.iterdir():
@@ -164,7 +164,7 @@ def main(
                                    hdbscan_model=clustering_model, umap_model=dimensionality_reduction_model)
 
     document_embeddings = None
-    if os.path.exists(embeddingspath):
+    if embeddingspath.is_file():
         print("Loading embeddings...")
         document_embeddings = pickle.load(open(embeddingspath, "rb"))
     else:
@@ -190,7 +190,7 @@ def main(
     results_df.drop('Representative_Docs', axis=1, inplace=True)
 
     results_df = pd.concat([results_df, rep_docs_df], axis=1)
-    results_df.to_csv(os.path.join(resultpath, "output.csv"), index=False)
+    results_df.to_csv(resultpath / "output.csv", index=False)
 
 
 if __name__ == '__main__':
