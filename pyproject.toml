@@ -12,6 +12,8 @@ dependencies = [
     "numpy",
     "pandas",
     "spacy",
+    "typer ~= 0.9",
+    "typer-config[yaml]"
 ]
 
 [project.scripts]

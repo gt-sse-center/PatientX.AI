@@ -1,18 +1,76 @@
-import argparse
 import csv
+from enum import Enum
 from pathlib import Path
 import os
 import pickle
-import yaml
 
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from bertopic.vectorizers import ClassTfidfTransformer
+from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.decomposition import PCA
 from spacy.lang.en import stop_words
 from sentence_transformers import SentenceTransformer
+from typing_extensions import Annotated
+import typer
+from typer_config.decorators import use_yaml_config
 
 from PatientX.models.BERTopicModel import BERTopicModel
 from PatientX.MistralRepresentation import MistralRepresentation
+
+
+app = typer.Typer()
+
+class ClusteringModel(str, Enum):
+    """
+    Enum for clustering algorithm options
+    """
+    hdbscan = "hdbscan",
+    kmeans = "kmeans",
+    agglomerative = "agglomerative"
+
+
+class DimensionalityReduction(str, Enum):
+    """
+    Enum for dimensionality reduction algorithm options
+    """
+    umap = "umap",
+    pca = "pca"
+
+
+def getDimensionalityReductionModel(dim_reduction_model: DimensionalityReduction):
+    """
+    Get a model instance of the chosen dimensionality reduction algorithm
+
+    :param dim_reduction_model: DimensionalityReductionModel instance - describes the algorithm for dimensionality reduction
+    :return: instance of the chosen dimensionality reduction model or None if it is the default used by bertopic
+    """
+    match dim_reduction_model:
+        case "umap":
+            # NOTE: umap returns None since bertopic defaults to a umap model instance
+            return None
+        case "pca":
+            # TODO: update so n_components is not hardcoded
+            return PCA(n_components=10)
+
+
+def getClusteringModel(clustering_model: ClusteringModel):
+    """
+    Get a model instance of the chosen clustering algorithm
+
+    :param clustering_model: ClusteringModel instance that describes the clustering algorithm
+    :return: Object of the chosen algorithm or None if it is the default used by bertopic
+    """
+    match clustering_model:
+        case "hdbscan":
+            # NOTE: hdbscan returns None since bertopic defaults to an hdbscan model instance
+            return None
+        case "kmeans":
+            # TODO: update so n_clusters is not hard coded
+            return KMeans(n_clusters=50)
+        case "agglomerative":
+            # TODO: update so n_clusters is not hard coded
+            return AgglomerativeClustering(n_clusters=50)
 
 
 def read_csv_files_in_directory(datafolder: Path):
@@ -20,12 +78,16 @@ def read_csv_files_in_directory(datafolder: Path):
     Read in data from all CSV files in directory
     Expected data format of CSV files in README
 
+
     :param datafolder: Path
+    :raises NotADirectoryError: If datafolder is not a directory
+    :raises KeyError: If data does not match structure found in README
     :return: List<str> containing documents
     """
     dfs = []
 
-    assert (os.path.isdir(datafolder))
+    if not os.path.isdir(datafolder):
+        raise NotADirectoryError("Data folder doesn't exist. Please check the filepath")
 
     for filename in datafolder.iterdir():
         filepath = datafolder / filename
@@ -36,6 +98,9 @@ def read_csv_files_in_directory(datafolder: Path):
             except csv.Error as e:
                 print(f"{filename}: is not a CSV file. File ignored")
                 pass
+
+    if len(dfs) == 0:
+        return None
 
     full_dataset = pd.concat(dfs, ignore_index=True)
     cleaned_text = pd.DataFrame()
@@ -55,46 +120,32 @@ def read_csv_files_in_directory(datafolder: Path):
     return cleaned_text.tolist()
 
 
-def main():
-    DOCUMENT_DIVERSITY = 0.1
-    if not os.path.isfile("config.yaml"):
-        raise Exception("Missing config yaml file")
-
-    with open("config.yaml", "r") as f:
-        config = yaml.safe_load(f)
-
-    parser = argparse.ArgumentParser(description="A script with command-line arguments.")
-    parser.add_argument("-d", "--datapath", type=str, default=config.get("datapath", "./data/"), help="Path to data")
-    parser.add_argument("-e", "--embeddings", type=str, default=config.get("embeddingspath", "./data/embeddings/"),
-                        help="Path to data embeddings")
-    parser.add_argument("-r", "--result_path", type=str, default=config.get("resultspath", "./output/"),
-                        help="Path to save results")
-    # parser.add_argument("-im", "--images", action="store_true", help="Save visualizations")
-    parser.add_argument("-lm", "--low_memory", action="store_true", help="Low memory flag")
-    parser.add_argument("-n", "--nr_docs", type=int, default=config.get("nr_docs", 10),
-                        help="Number of docs per topic to pass to representation model")
-    parser.add_argument("-p", "--prompt", type=str, default=config.get("prompt", ""), help="Prompt to pass to LLM")
-    parser.add_argument("-sz", "--min_topic_size", type=int, default=config.get("min_topic_size", 100),
-                        help="Minimum topic size")
-
-    # bertopic options
-
-    parser.add_argument("-cl", "--clustering", type=str, choices=['hbdscan', 'kmeans', 'agglomerative'],
-                        default=config.get("clustering_model", "hdbscan"), help="Clustering algorithm")
-    # parser.add_argument("-llm", "--llm", type=str, choices=['gpt4o', 'mistral-small'], help="Low memory flag")
-    parser.add_argument("-dim", "--dim_reduction", type=str, choices=['pca', 'umap'],
-                        default=config.get("dimensionality_reduction", "umap"),
-                        help="Dimensionality reduction algorithm")
-    parser.add_argument("-s", "--save_embeddings", action="store_true", default=config.get("save_embeddings", False),
-                        help="Save embeddings")
-
-    args = parser.parse_args()
-
+@app.command()
+@use_yaml_config()
+def main(
+        datapath: Annotated[Path, typer.Option()] = "./data",
+        embeddingspath: Annotated[Path, typer.Option()] = "./embeddings",
+        resultpath: Annotated[Path, typer.Option()] = "./output",
+        low_memory: Annotated[bool, typer.Option()] = False,
+        nr_docs: Annotated[int, typer.Option()] = 10,
+        document_diversity: Annotated[float, typer.Option()] = 0.1,
+        prompt: Annotated[str, typer.Option()] = None,
+        min_topic_size: Annotated[int, typer.Option()] = 100,
+        clustering_model: Annotated[ClusteringModel, typer.Option(case_sensitive=False)] = ClusteringModel.hdbscan,
+        dimensionality_reduction: Annotated[
+            DimensionalityReduction, typer.Option(case_sensitive=False)] = DimensionalityReduction.umap,
+        save_embeddings: Annotated[bool, typer.Option()] = False,
+):
     print("Reading data...")
-    documents = read_csv_files_in_directory(args.datapath)
+    documents = read_csv_files_in_directory(datapath)
+
+    if not documents:
+        print("No data found")
+        return
+
     print("Done!")
 
-    representation_model = MistralRepresentation(nr_docs=args.nr_docs, diversity=DOCUMENT_DIVERSITY, api="generate")
+    representation_model = MistralRepresentation(nr_docs=nr_docs, diversity=document_diversity, api="generate")
     medical_embedding_model = SentenceTransformer('pritamdeka/S-PubMedBert-MS-MARCO')
     custom_stop_words = {'with', 'my', 'your', 'she', 'this', 'was', 'her', 'have', 'as', 'he', 'him', 'but', 'not',
                          'so', 'are', 'at', 'be', 'has', 'do', 'got', 'how', 'on', 'or', 'would', 'will', 'what',
@@ -104,23 +155,26 @@ def main():
 
     vectorizer_model = CountVectorizer(stop_words=custom_stop_words)
     ctfidf_model = ClassTfidfTransformer(reduce_frequent_words=True)
+    dimensionality_reduction_model = getDimensionalityReductionModel(dimensionality_reduction)
+    clustering_model = getClusteringModel(clustering_model)
 
     bertopic_model = BERTopicModel(ctfidf_model=ctfidf_model, embedding_model=medical_embedding_model, verbose=True,
-                                   min_topic_size=args.min_topic_size, vectorizer_model=vectorizer_model,
-                                   representation_model=representation_model, low_memory=args.low_memory)
+                                   min_topic_size=min_topic_size, vectorizer_model=vectorizer_model,
+                                   representation_model=representation_model, low_memory=low_memory,
+                                   hdbscan_model=clustering_model, umap_model=dimensionality_reduction_model)
 
-    if os.path.exists(args.embeddings):
+    document_embeddings = None
+    if os.path.exists(embeddingspath):
         print("Loading embeddings...")
+        document_embeddings = pickle.load(open(embeddingspath, "rb"))
     else:
+        document_embeddings = medical_embedding_model.encode(documents, show_progress_bar=True)
         print("Generating embeddings...")
-
-    document_embeddings = pickle.load(open(args.embeddings, "rb")) if os.path.exists(
-        args.embeddings) else medical_embedding_model.encode(documents, show_progress_bar=True)
 
     print("Done!")
 
-    if args.save_embeddings:
-        pickle.dump(document_embeddings, open(os.path.join(args.result_path, "embeddings.pkl"), "wb"))
+    if save_embeddings:
+        pickle.dump(document_embeddings, open(resultpath / "embeddings.pkl", "wb"))
 
     print("Fitting model...")
     bertopic_model = bertopic_model.fit(documents=documents, embeddings=document_embeddings)
@@ -136,8 +190,8 @@ def main():
     results_df.drop('Representative_Docs', axis=1, inplace=True)
 
     results_df = pd.concat([results_df, rep_docs_df], axis=1)
-    results_df.to_csv(os.path.join(args.result_path, "output.csv"), index=False)
+    results_df.to_csv(os.path.join(resultpath, "output.csv"), index=False)
 
 
 if __name__ == '__main__':
-    main()
+    app()

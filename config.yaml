@@ -4,6 +4,7 @@ embeddingspath: "./output/embeddings.pkl"
 generate_visualizations: False
 low_memory: False
 nr_docs: 10
+document_diversity: 0.1
 prompt: ""
 min_topic_size: 100
 clustering_model: hdbscan
