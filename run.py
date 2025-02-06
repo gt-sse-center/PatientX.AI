@@ -1,7 +1,6 @@
 import csv
 from enum import Enum
 from pathlib import Path
-import os
 import pickle
 
 import pandas as pd
