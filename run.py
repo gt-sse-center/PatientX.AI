@@ -8,6 +8,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from bertopic.vectorizers import ClassTfidfTransformer
 from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.base import ClusterMixin, TransformerMixin
 from sklearn.decomposition import PCA
 from spacy.lang.en import stop_words
 from sentence_transformers import SentenceTransformer
@@ -38,7 +39,7 @@ class DimensionalityReduction(str, Enum):
     pca = "pca"
 
 
-def getDimensionalityReductionModel(dim_reduction_model: DimensionalityReduction):
+def get_dimensionality_reduction_model(dim_reduction_model: DimensionalityReduction) -> Optional[TransformerMixin]:
     """
     Get a model instance of the chosen dimensionality reduction algorithm
 
@@ -54,7 +55,7 @@ def getDimensionalityReductionModel(dim_reduction_model: DimensionalityReduction
             return PCA(n_components=10)
 
 
-def getClusteringModel(clustering_model: ClusteringModel):
+def get_clustering_model(clustering_model: ClusteringModel) -> Optional[ClusterMixin]:
     """
     Get a model instance of the chosen clustering algorithm
 
@@ -73,7 +74,7 @@ def getClusteringModel(clustering_model: ClusteringModel):
             return AgglomerativeClustering(n_clusters=50)
 
 
-def read_csv_files_in_directory(datafolder: Path) -> List[str]:
+def read_csv_files_in_directory(datafolder: Path) -> Optional[List[str]]:
     """
     Read in data from all CSV files in directory
     Expected data format of CSV files in README
@@ -82,7 +83,7 @@ def read_csv_files_in_directory(datafolder: Path) -> List[str]:
     :param datafolder: Path
     :raises NotADirectoryError: If datafolder is not a directory
     :raises KeyError: If data does not match structure found in README
-    :return: List<str> containing documents
+    :return: optional List<str> containing documents, None if no valid csv files in directory
     """
     dfs = []
 
@@ -155,8 +156,8 @@ def main(
 
     vectorizer_model = CountVectorizer(stop_words=custom_stop_words)
     ctfidf_model = ClassTfidfTransformer(reduce_frequent_words=True)
-    dimensionality_reduction_model = getDimensionalityReductionModel(dimensionality_reduction)
-    clustering_model = getClusteringModel(clustering_model)
+    dimensionality_reduction_model = get_dimensionality_reduction_model(dimensionality_reduction)
+    clustering_model = get_clustering_model(clustering_model)
 
     bertopic_model = BERTopicModel(ctfidf_model=ctfidf_model, embedding_model=medical_embedding_model, verbose=True,
                                    min_topic_size=min_topic_size, vectorizer_model=vectorizer_model,
