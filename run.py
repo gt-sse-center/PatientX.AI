@@ -20,8 +20,8 @@ from typer_config.decorators import use_yaml_config
 from PatientX.models.BERTopicModel import BERTopicModel
 from PatientX.MistralRepresentation import MistralRepresentation
 
-
 app = typer.Typer()
+
 
 class ClusteringModel(str, Enum):
     """
@@ -129,9 +129,24 @@ def read_csv_files_in_directory(datafolder: Path) -> List[str]:
 @app.command()
 @use_yaml_config()
 def main(
-        datapath: Annotated[Path, typer.Option()] = "./data",
-        embeddingspath: Annotated[Path, typer.Option()] = "./embeddings",
-        resultpath: Annotated[Path, typer.Option()] = "./output",
+        datapath: Annotated[Path, typer.Option(
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            resolve_path=True,
+        )] = "./data",
+        embeddingspath: Annotated[Path, typer.Option(
+            exists=False,
+            file_okay=True,
+            dir_okay=False,
+            resolve_path=True,
+        )] = "./output/embeddings.pkl",
+        resultpath: Annotated[Path, typer.Option(
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            resolve_path=True,
+        )] = "./output",
         low_memory: Annotated[bool, typer.Option()] = False,
         nr_docs: Annotated[int, typer.Option()] = 10,
         document_diversity: Annotated[float, typer.Option()] = 0.1,
