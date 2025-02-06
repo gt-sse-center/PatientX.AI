@@ -2,6 +2,7 @@ import csv
 from enum import Enum
 from pathlib import Path
 import pickle
+from typing import List, Optional
 
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
@@ -42,7 +43,7 @@ def getDimensionalityReductionModel(dim_reduction_model: DimensionalityReduction
     Get a model instance of the chosen dimensionality reduction algorithm
 
     :param dim_reduction_model: DimensionalityReductionModel instance - describes the algorithm for dimensionality reduction
-    :return: instance of the chosen dimensionality reduction model or None if it is the default used by bertopic
+    :return: [optional] instance of the chosen dimensionality reduction model or None if it is the default used by bertopic
     """
     match dim_reduction_model:
         case "umap":
@@ -58,7 +59,7 @@ def getClusteringModel(clustering_model: ClusteringModel):
     Get a model instance of the chosen clustering algorithm
 
     :param clustering_model: ClusteringModel instance that describes the clustering algorithm
-    :return: Object of the chosen algorithm or None if it is the default used by bertopic
+    :return: [optional] object of the chosen algorithm or None if it is the default used by bertopic
     """
     match clustering_model:
         case "hdbscan":
@@ -72,7 +73,7 @@ def getClusteringModel(clustering_model: ClusteringModel):
             return AgglomerativeClustering(n_clusters=50)
 
 
-def read_csv_files_in_directory(datafolder: Path):
+def read_csv_files_in_directory(datafolder: Path) -> List[str]:
     """
     Read in data from all CSV files in directory
     Expected data format of CSV files in README
