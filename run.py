@@ -2,6 +2,7 @@ import csv
 from enum import Enum
 from pathlib import Path
 import pickle
+import sys
 from typing import List, Optional
 
 import pandas as pd
@@ -53,6 +54,9 @@ def get_dimensionality_reduction_model(dim_reduction_model: DimensionalityReduct
         case "pca":
             # TODO: update so n_components is not hardcoded
             return PCA(n_components=10)
+        case _:
+            sys.stdout.write("WARNING: Unknown dimensionality reduction model - defaulting to umap\n")
+            return None
 
 
 def get_clustering_model(clustering_model: ClusteringModel) -> Optional[ClusterMixin]:
@@ -72,9 +76,11 @@ def get_clustering_model(clustering_model: ClusteringModel) -> Optional[ClusterM
         case "agglomerative":
             # TODO: update so n_clusters is not hard coded
             return AgglomerativeClustering(n_clusters=50)
+        case _:
+            sys.stdout.write("WARNING: Unknown clustering model - defaulting to hdbscan\n")
 
 
-def read_csv_files_in_directory(datafolder: Path) -> Optional[List[str]]:
+def read_csv_files_in_directory(datafolder: Path) -> List[str]:
     """
     Read in data from all CSV files in directory
     Expected data format of CSV files in README
@@ -83,7 +89,7 @@ def read_csv_files_in_directory(datafolder: Path) -> Optional[List[str]]:
     :param datafolder: Path
     :raises NotADirectoryError: If datafolder is not a directory
     :raises KeyError: If data does not match structure found in README
-    :return: optional List<str> containing documents, None if no valid csv files in directory
+    :return: List<str> containing documents, [] if no valid csv files in directory
     """
     dfs = []
 
@@ -96,12 +102,11 @@ def read_csv_files_in_directory(datafolder: Path) -> Optional[List[str]]:
             try:
                 df = pd.read_csv(filepath)
                 dfs.append(df.copy(deep=True))
-            except csv.Error as e:
-                print(f"{filename}: is not a CSV file. File ignored")
-                pass
+            except csv.Error:
+                sys.stdout.write(f"WARNING: {filename} is not a CSV file. File ignored\n")
 
     if len(dfs) == 0:
-        return None
+        return []
 
     full_dataset = pd.concat(dfs, ignore_index=True)
     cleaned_text = pd.DataFrame()
@@ -115,7 +120,7 @@ def read_csv_files_in_directory(datafolder: Path) -> Optional[List[str]]:
                                                                                                                regex=True)
         cleaned_text = cleaned_text.replace(r'\t', ' ', regex=True)
         cleaned_text = cleaned_text.replace(r'\r', ' ', regex=True)
-    except KeyError as e:
+    except KeyError:
         raise KeyError("Check README file for proper data format")
 
     return cleaned_text.tolist()
@@ -137,14 +142,14 @@ def main(
             DimensionalityReduction, typer.Option(case_sensitive=False)] = DimensionalityReduction.umap,
         save_embeddings: Annotated[bool, typer.Option()] = False,
 ):
-    print("Reading data...")
+    sys.stdout.write("Reading data...\n")
     documents = read_csv_files_in_directory(datapath)
 
-    if not documents:
-        print("No data found")
+    if len(documents) == 0:
+        sys.stdout.write("No data found\n")
         return
 
-    print("Done!")
+    sys.stdout.write("Done!\n")
 
     representation_model = MistralRepresentation(nr_docs=nr_docs, diversity=document_diversity, api="generate")
     medical_embedding_model = SentenceTransformer('pritamdeka/S-PubMedBert-MS-MARCO')
@@ -166,22 +171,22 @@ def main(
 
     document_embeddings = None
     if embeddingspath.is_file():
-        print("Loading embeddings...")
+        sys.stdout.write("Loading embeddings...\n")
         document_embeddings = pickle.load(open(embeddingspath, "rb"))
     else:
+        sys.stdout.write("Generating embeddings...\n")
         document_embeddings = medical_embedding_model.encode(documents, show_progress_bar=True)
-        print("Generating embeddings...")
 
-    print("Done!")
+    sys.stdout.write("Done!\n")
 
     if save_embeddings:
         pickle.dump(document_embeddings, open(resultpath / "embeddings.pkl", "wb"))
 
-    print("Fitting model...")
+    sys.stdout.write("Fitting Model...\n")
     bertopic_model = bertopic_model.fit(documents=documents, embeddings=document_embeddings)
     bertopic_model.transform(documents, embeddings=document_embeddings)
 
-    print("Saving model output...")
+    sys.stdout.write("Saving model output...\n")
 
     # save model output
     results_df = bertopic_model.get_topic_info()
