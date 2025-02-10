@@ -45,7 +45,7 @@ def test_run_to_completion(fs, dimensionality_reduction_model, clustering_model,
         output_dir = Path("test_output")
         fs.create_dir(output_dir)
 
-        input_dir = repo_root / "data" / "test_data"
+        input_dir = repo_root / "data" / "test_data" / "pass"
         fs.add_real_directory(input_dir)
 
         output_file = output_dir / "output.csv"
@@ -62,19 +62,24 @@ def test_run_to_completion(fs, dimensionality_reduction_model, clustering_model,
         assert result.exit_code == 0
         assert output_file.exists()
 
-def test_read_csv_files_in_directory(fs):
+def test_read_csv_files_in_directory():
     repo_root = Path(__file__).parent.parent
-    input_dir = repo_root / "data" / "test_data"
+    input_dir = repo_root / "data" / "test_data" / "pass"
+    empty_dir = repo_root / "data" / "test_data" / "pass" / "empty_dir"
 
+    docs = read_csv_files_in_directory(empty_dir)
 
-    fs.create_dir("empty_dir")
+    assert len(docs) == 0
 
-    documents_empty_dir = read_csv_files_in_directory(Path("empty_dir"))
-
-    assert len(documents_empty_dir) == 0
-
-    fs.add_real_directory(input_dir)
-    documents_csv = read_csv_files_in_directory(input_dir)
+    docs = read_csv_files_in_directory(input_dir)
 
     # TODO: add comment explaining why this is 46
-    assert len(documents_csv) == 46
+    assert len(docs) == 46
+
+
+def test_read_csv_files_incorrect_structure():
+    repo_root = Path(__file__).parent.parent
+    input_dir = repo_root / "data" / "test_data" / "fail"
+
+    with pytest.raises(KeyError):
+        read_csv_files_in_directory(input_dir)
