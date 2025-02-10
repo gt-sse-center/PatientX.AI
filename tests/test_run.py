@@ -62,24 +62,33 @@ def test_run_to_completion(fs, dimensionality_reduction_model, clustering_model,
         assert result.exit_code == 0
         assert output_file.exists()
 
-def test_read_csv_files_in_directory():
+def test_read_csv_files_in_directory(fs):
     repo_root = Path(__file__).parent.parent
     input_dir = repo_root / "data" / "test_data" / "pass"
-    empty_dir = repo_root / "data" / "test_data" / "pass" / "empty_dir"
 
-    docs = read_csv_files_in_directory(empty_dir)
+    fs.create_dir("empty_dir")
+
+    docs = read_csv_files_in_directory(Path("empty_dir"))
 
     assert len(docs) == 0
 
+    fs.add_real_directory(input_dir)
     docs = read_csv_files_in_directory(input_dir)
 
-    # TODO: add comment explaining why this is 46
+    # this should be 46 since loading datasets merges posts from the same forum, thread, and message number
+    # the fake data has 46 unique datapoints
     assert len(docs) == 46
 
 
 def test_read_csv_files_incorrect_structure():
     repo_root = Path(__file__).parent.parent
     input_dir = repo_root / "data" / "test_data" / "fail"
+    missing_dir = repo_root / "data" / "test_data" / "missing_dir"
 
+    # assert a csv files that does not adhere to the proper data format raises a KeyError
     with pytest.raises(KeyError):
         read_csv_files_in_directory(input_dir)
+
+    # assert something that is not a directory raises a NotADirectory error
+    with pytest.raises(NotADirectoryError):
+        read_csv_files_in_directory(missing_dir)
