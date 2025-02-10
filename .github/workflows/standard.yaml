@@ -46,5 +46,5 @@ jobs:
           pip install -e .
       - name: Test with pytest
         run: |
-          pip install pytest pytest-cov
+          pip install pytest pytest-cov pyfakefs
           pytest tests/test_run.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
