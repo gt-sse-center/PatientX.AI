@@ -3,10 +3,11 @@ from enum import Enum
 from pathlib import Path
 import pickle
 import sys
-from typing import Optional
+from typing import List, Optional
 
 import pandas as pd
 import numpy as np
+from torch import Tensor
 from bertopic.vectorizers import ClassTfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.cluster import KMeans, AgglomerativeClustering
@@ -21,7 +22,6 @@ from typer_config.decorators import use_yaml_config
 from PatientX.models.BERTopicModel import BERTopicModel
 from PatientX.models.MistralRepresentation import MistralRepresentation
 from PatientX.utils import read_csv_files_in_directory
-
 
 app = typer.Typer()
 
@@ -42,13 +42,31 @@ class DimensionalityReduction(str, Enum):
     umap = "umap",
     pca = "pca"
 
-def get_representation_model(type, nr_docs, document_diversity):
-    match type:
+
+class RepresentationModel(str, Enum):
+    """
+    Enum for representation algorithm options
+    """
+    mistral_small = "mistral-small",
+    gpt4o = "gpt4o"
+
+
+def get_representation_model(model_type: RepresentationModel, nr_docs: int = 10, document_diversity: float = 0.1):
+    """
+    Get an instance of the chosen representation model
+
+    :param model_type: Representation model enum
+    :param nr_docs: number of docs to pass into the representation model
+    :param document_diversity: document diversity parameter for choosing docs to passing to the representation model
+    :return: instance of the chosen representation model
+    """
+    match model_type:
         case "mistral-small":
             return MistralRepresentation(nr_docs=nr_docs, diversity=np.clip(document_diversity, 0, 1),
-                                                     api="generate")
+                                         api="generate")
         case _:
             return None
+
 
 def get_dimensionality_reduction_model(dim_reduction_model: DimensionalityReduction) -> Optional[TransformerMixin]:
     """
@@ -89,8 +107,25 @@ def get_clustering_model(clustering_model: ClusteringModel) -> Optional[ClusterM
         case _:
             sys.stdout.write("WARNING: Unknown clustering model - defaulting to hdbscan\n")
 
-def run_bertopic_model(documents, embeddingspath, dimensionality_reduction, clustering_model, representationmodel, min_topic_size, nr_docs, document_diversity, low_memory):
-    representation_model = get_representation_model(type=representationmodel, nr_docs=nr_docs,
+
+def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionality_reduction: DimensionalityReduction,
+                       clustering_model: ClusteringModel, representationmodel: RepresentationModel, min_topic_size: int,
+                       nr_docs: int, document_diversity: float, low_memory: bool) -> tuple[pd.DataFrame, Tensor]:
+    """
+    Run the bertopic model on the given documents with the given model parameters
+
+    :param documents: list of documents to run the bertopic algorithm on
+    :param embeddingspath: path to saved embeddings to load
+    :param dimensionality_reduction: type of dimensionality reduction algorithm to use
+    :param clustering_model: type of clustering algorithm to use
+    :param representationmodel: type of representation model to use
+    :param min_topic_size: minimum documents in a topic cluster
+    :param nr_docs: number of documents to pass into the represenation model
+    :param document_diversity: document diversity parameter -> float from 0-1
+    :param low_memory: low memory flag
+    :return: tuple of pd.DataFrame holding results and tensor holding document embeddings
+    """
+    representation_model = get_representation_model(model_type=representationmodel, nr_docs=nr_docs,
                                                     document_diversity=document_diversity)
 
     medical_embedding_model = SentenceTransformer('pritamdeka/S-PubMedBert-MS-MARCO')
@@ -126,8 +161,6 @@ def run_bertopic_model(documents, embeddingspath, dimensionality_reduction, clus
 
     sys.stdout.write("Done!\n")
 
-
-
     sys.stdout.write("Fitting Model...\n")
     bertopic_model = bertopic_model.fit(documents=documents, embeddings=document_embeddings)
     bertopic_model.transform(documents, embeddings=document_embeddings)
@@ -143,7 +176,7 @@ def run_bertopic_model(documents, embeddingspath, dimensionality_reduction, clus
 
     results_df = pd.concat([results_df, rep_docs_df], axis=1)
 
-    return results_df, document_embeddings,
+    return results_df, document_embeddings
 
 
 @app.command()
@@ -170,7 +203,7 @@ def main(
         low_memory: Annotated[bool, typer.Option()] = False,
         nr_docs: Annotated[int, typer.Option()] = 10,
         document_diversity: Annotated[float, typer.Option()] = 0.1,
-        representationmodel: Annotated[str, typer.Option()] = "None",
+        representationmodel: Annotated[RepresentationModel, typer.Option(case_sensitive=False)] = RepresentationModel.mistral_small,
         prompt: Annotated[str, typer.Option()] = None,
         min_topic_size: Annotated[int, typer.Option()] = 100,
         clustering_model: Annotated[ClusteringModel, typer.Option(case_sensitive=False)] = ClusteringModel.hdbscan,
@@ -191,7 +224,12 @@ def main(
 
     sys.stdout.write("Done!\n")
 
-    results_df, document_embeddings = run_bertopic_model(documents=documents, embeddingspath=embeddingspath, dimensionality_reduction=dimensionality_reduction, clustering_model=clustering_model,representationmodel=representationmodel, min_topic_size=min_topic_size, low_memory=low_memory,nr_docs=nr_docs, document_diversity=document_diversity)
+    results_df, document_embeddings = run_bertopic_model(documents=documents, embeddingspath=embeddingspath,
+                                                         dimensionality_reduction=dimensionality_reduction,
+                                                         clustering_model=clustering_model,
+                                                         representationmodel=representationmodel,
+                                                         min_topic_size=min_topic_size, low_memory=low_memory,
+                                                         nr_docs=nr_docs, document_diversity=document_diversity)
     results_df.to_csv(resultpath / "output.csv", index=False)
 
     if save_embeddings:
