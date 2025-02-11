@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools >= 75.8.0", "wheel >= 0.45.1"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "PatientX"
 version = "0.1.0"
@@ -5,13 +9,21 @@ version = "0.1.0"
 license = { text = "MIT" }
 
 readme = "README.md"
+requires-python = ">=3.9"
 
 dependencies = [
     "bertopic>=0.16.4",
     "datamapplot>=0.1",
-    "spacy>=3.8.4",
+    "spacy>=3.8.0",
     "typer ~= 0.9",
     "typer-config[yaml]>=1.4.2"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest >= 8.3.4",
+    "pyfakefs ~= 5.7",
+    "pytest-xdist >= 3.6.1",
 ]
 
 [project.scripts]

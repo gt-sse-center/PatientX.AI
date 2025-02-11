@@ -1,10 +1,13 @@
 
 /existing_code/forum-crawler data
 /.idea
-/data
-
+/data/*
+!/data/test_data/
+!/data/test_data/**
 !/data/README.md
+
 /src/PatientX.egg-info
 /src/PatientX/models/__pycache__
 /src/PatientX/__pycache__
 /output
+
