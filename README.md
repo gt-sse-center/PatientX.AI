@@ -59,4 +59,4 @@ $> Rscript legacy_Data_sempling_topic_modeling.r
 
 ## Additional Documentation
 
-- [Running python notebook on Data](python-notebook/Run_LLM_on_server_how_to.md) - Instructions for running large language models for topic modeling.
+- [Running python notebook on Data](python-notebooks/Run_LLM_on_server_how_to.md) - Instructions for running large language models for topic modeling.
