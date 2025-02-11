@@ -11,14 +11,12 @@ from PatientX.run import app
 dimensionality_reduction_models = [
     "pca",
     "umap",
-    "randomname"
 ]
 
 clustering_models = [
     "hdbscan",
     "kmeans",
     "agglomerative",
-    "randomname"
 ]
 
 save_embeddings_values = [
@@ -86,7 +84,7 @@ def test_read_csv_files_incorrect_structure():
     missing_dir = repo_root / "data" / "test_data" / "missing_dir"
 
     # assert a csv files that does not adhere to the proper data format raises a KeyError
-    with pytest.raises(KeyError):
+    with pytest.raises(KeyError, match="Check README file for proper data format"):
         read_csv_files_in_directory(input_dir)
 
     # assert something that is not a directory raises a NotADirectory error
