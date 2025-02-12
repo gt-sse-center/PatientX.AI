@@ -13,6 +13,9 @@ python3 --version
 ```
 If it's not installed, you can download it from [Python's official website](https://www.python.org/downloads/).
 
+#### Step 2: If root isn't available
+After git cloning ollama, replace the original script/install.sh with our local script/install.sh which is a custom install script for ollama without the need for root
+
 ### 2. Install Mistral-Small Model
 To run **Mistral-Small**, you need to install it from a repository or package that hosts LLMs, such as **ollama** or other LLM management tools.
 

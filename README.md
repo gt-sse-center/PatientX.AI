@@ -25,6 +25,7 @@ PatientX.AI offers:
 ## Project Structure
 ```
 PatientX.AI/
+├── script/install.sh                         # script to replace install.sh from ollama repo in order to install ollama rootless using --user flag
 ├── data/                                     # folder to hold data to be used by pipelines
 ├── python-notebook/                          # hold python notebook and documentation
 ├── existing_code/                            # folder to hold code prior to work with GT CSSE
