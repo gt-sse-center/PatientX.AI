@@ -1,7 +1,7 @@
 # Tmux: Why Use It and How to Start a Session
 
 ## Why Use Tmux?
-Tmux (Terminal Multiplexer) is a powerful tool that allows you to:
+[Tmux (Terminal Multiplexer)](https://github.com/tmux/tmux/wiki) is a powerful tool that allows you to:
 
 - **Manage Multiple Terminal Sessions:** Run multiple shell sessions within a single window and easily switch between them.
 - **Persistent Sessions:** Keep your sessions running even after disconnecting, which is particularly useful for SSH connections. **This can be particularly useful here since running the full PatientX.AI may take some time depending on the size of the dataset and model configuration. Without `tmux`, if the ssh connection disconnects, the code may not run to completion**
