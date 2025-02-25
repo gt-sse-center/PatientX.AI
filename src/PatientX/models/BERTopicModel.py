@@ -1,24 +1,15 @@
-from typing import List, Union, Mapping, Tuple, Any, Dict
+from typing import List, Union, Mapping, Tuple, Any
 
 import numpy as np
 import pandas as pd
-from pandas import DataFrame
 
 from PatientX.models.ClusteringModelInterface import ClusteringModelInterface
 from bertopic import BERTopic
 from bertopic._utils import (
     MyLogger,
-    check_documents_type,
-    check_embeddings_shape,
-    check_is_fitted,
 )
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import csr_matrix
-from bertopic.vectorizers import ClassTfidfTransformer
-from bertopic.cluster import BaseCluster
 from bertopic.representation import BaseRepresentation
-from bertopic.backend._utils import select_backend
 from typing_extensions import override
 from pathlib import Path
 
