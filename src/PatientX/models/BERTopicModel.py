@@ -73,37 +73,6 @@ class BERTopicModel(ClusteringModelInterface, BERTopic):
         self.representative_docs_ = repr_docs
 
     @override
-    def _extract_topics(
-        self,
-        documents: pd.DataFrame,
-        embeddings: np.ndarray = None,
-        mappings=None,
-        verbose: bool = False,
-    ):
-        """Extract topics from the clusters using a class-based TF-IDF.
-
-        Arguments:
-            documents: Dataframe with documents and their corresponding IDs
-            embeddings: The document embeddings
-            mappings: The mappings from topic to word
-            verbose: Whether to log the process of extracting topics
-
-        Returns:
-            c_tf_idf: The resulting matrix giving a value (importance score) for each word per topic
-        """
-        if verbose:
-            logger.info("Representation - Extracting topics from clusters using representation models.")
-        print("Documents DF passed in: ")
-        print(documents.head(10))
-        documents_per_topic = documents.groupby(["Topic"], as_index=False).agg({"Document": " ".join})
-        self.c_tf_idf_, words = self._c_tf_idf(documents_per_topic)
-        self.topic_representations_ = self._extract_words_per_topic(words, documents)
-        self._create_topic_vectors(documents=documents, embeddings=embeddings, mappings=mappings)
-        self.bertopic_only_results = documents_per_topic.copy(deep=True)
-        if verbose:
-            logger.info("Representation - Completed \u2713")
-
-    @override
     def getClusters(self, datapath):
         if Path(datapath).is_file():
             with open(datapath, 'r', encoding='utf-8') as file:
@@ -134,9 +103,8 @@ class BERTopicModel(ClusteringModelInterface, BERTopic):
         # visualize term rank
         super().visualize_term_rank()
 
-    def get_bertopic_only_results(self) -> tuple[
-        Any, Any, dict[int, list[tuple[str | list[str], Any] | tuple[str, float]]]]:
-        return (self.bertopic_only_results, self.representative_docs_, self.bertopic_representative_words)
+    def get_bertopic_only_results(self) -> tuple[Any, dict[int, list[tuple[str | list[str], Any] | tuple[str, float]]]]:
+        return self.representative_docs_, self.bertopic_representative_words
 
     @override
     def _extract_words_per_topic(

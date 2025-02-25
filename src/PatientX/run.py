@@ -113,7 +113,7 @@ def get_clustering_model(clustering_model: ClusteringModel) -> Optional[ClusterM
 def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionality_reduction: DimensionalityReduction,
                        clustering_model: ClusteringModel, representationmodel: RepresentationModel, min_topic_size: int,
                        nr_docs: int, document_diversity: float, low_memory: bool) -> tuple[
-    DataFrame, ndarray | Any, tuple[Any, Any, dict[int, list[tuple[str | list[str], Any] | tuple[str, float]]]]]:
+    DataFrame, ndarray | Any, tuple[Any, dict[int, list[tuple[str | list[str], Any] | tuple[str, float]]]]]:
     """
     Run the bertopic model on the given documents with the given model parameters
 
@@ -178,11 +178,23 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionalit
 
     results_df = pd.concat([results_df, rep_docs_df], axis=1)
 
-
-
-
     return results_df, document_embeddings, bertopic_model.get_bertopic_only_results()
 
+def format_bertopic_results(results_df, representative_docs, bertopic_representative_words):
+    get_words = lambda xs: str([x[0] for x in xs])
+    bertopic_representative_words = {k: get_words(v) for k, v in bertopic_representative_words.items()}
+
+    counts = results_df['Count']
+    topics = results_df['Topic']
+
+    bertopic_results_df = pd.DataFrame.from_dict(representative_docs, orient='index')
+    rep_words = pd.DataFrame.from_dict(bertopic_representative_words, orient='index')
+
+    bertopic_final_res = pd.concat(
+        [topics.reset_index(), counts.reset_index(), rep_words.reset_index(), bertopic_results_df.reset_index()],
+        axis=1)
+
+    return bertopic_final_res
 
 @app.command()
 @use_yaml_config()
@@ -237,20 +249,9 @@ def main(
                                                          nr_docs=nr_docs, document_diversity=document_diversity)
     results_df.to_csv(resultpath / "output.csv", index=False)
 
-    bertopic_df, representative_docs, bertopic_representative_words = bertopic_only_results
+    representative_docs, bertopic_representative_words = bertopic_only_results
 
-    get_words = lambda xs : str([x[0] for x in xs])
-    bertopic_representative_words = {k: get_words(v) for k, v in bertopic_representative_words.items()}
-
-    counts = results_df['Count']
-    topics = results_df['Topic']
-
-
-    bertopic_results_df = pd.DataFrame.from_dict(representative_docs, orient='index')
-    rep_words = pd.DataFrame.from_dict(bertopic_representative_words, orient='index')
-
-
-    bertopic_final_res = pd.concat([topics.reset_index(), counts.reset_index(), rep_words.reset_index(), bertopic_results_df.reset_index()], axis=1)
+    bertopic_final_res = format_bertopic_results(results_df, representative_docs, bertopic_representative_words)
     bertopic_final_res.to_csv(resultpath / "bertopic_final_results.csv", index=False)
 
 
