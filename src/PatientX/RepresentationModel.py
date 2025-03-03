@@ -6,4 +6,3 @@ class RepresentationModel(str, Enum):
     """
     mistral_small = "mistral-small",
     gpt4o = "gpt4o"
-    
