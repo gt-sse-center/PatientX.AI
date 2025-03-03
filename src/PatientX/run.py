@@ -111,7 +111,7 @@ def get_clustering_model(clustering_model: ClusteringModel) -> Optional[ClusterM
 
 def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionality_reduction: DimensionalityReduction,
                        clustering_model: ClusteringModel, representationmodel: RepresentationModel, min_topic_size: int,
-                       nr_docs: int, document_diversity: float, low_memory: bool) -> tuple[
+                       nr_docs: int, document_diversity: float, low_memory: bool, result_path: Path) -> tuple[
     DataFrame, ndarray | Any, tuple[Any, dict[int, list[tuple[str | list[str], Any] | tuple[str, float]]]]]:
     """
     Run the bertopic model on the given documents with the given model parameters
@@ -166,9 +166,11 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionalit
     sys.stdout.write("Fitting Model...\n")
     preds, probs = bertopic_model.fit(documents=documents, embeddings=document_embeddings)
 
-    sys.stdout.write("Saving model output...\n")
+    sys.stdout.write("\nSaving model output...\n")
 
     # save model output
+    bertopic_model.save(result_path / "bertopic_model.pkl", serialization="pickle")
+
     results_df = bertopic_model.get_topic_info()
     rep_docs = results_df['Representative_Docs'].tolist()
 
@@ -253,7 +255,7 @@ def main(
                                                          clustering_model=clustering_model,
                                                          representationmodel=representationmodel,
                                                          min_topic_size=min_topic_size, low_memory=low_memory,
-                                                         nr_docs=nr_docs, document_diversity=document_diversity)
+                                                         nr_docs=nr_docs, document_diversity=document_diversity, result_path=resultpath)
     results_df.to_csv(resultpath / "output.csv", index=False)
 
     representative_docs, bertopic_representative_words = bertopic_only_results
