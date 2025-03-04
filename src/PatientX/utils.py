@@ -33,7 +33,6 @@ def read_csv_files_in_directory(datafolder: Path) -> List[str]:
         return []
 
     full_dataset = pd.concat(dfs, ignore_index=True)
-    cleaned_text = pd.DataFrame()
     try:
         grouped_dataset = full_dataset.groupby(['forum', 'thread_title', 'message_nr'], as_index=False).agg(
             {'post_message': ''.join})
