@@ -47,7 +47,7 @@ Mapping[
             pass
 
     return representation_model.extract_topics(bertopic_model, documents=bertopic_model.fit_documents, c_tf_idf=bertopic_model.c_tf_idf_,
-                                               topics=bertopic_model.topics_)
+                                               topics=bertopic_model.bertopic_representative_words)
 
 
 @app.command()
