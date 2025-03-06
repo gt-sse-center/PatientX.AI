@@ -9,7 +9,6 @@ from bertopic.representation._base import BaseRepresentation
 
 def load_bertopic_model_from_pkl(filepath: Path):
     if filepath.exists():
-        print("returning")
         return BERTopic.load(str(filepath))
 
     return None
