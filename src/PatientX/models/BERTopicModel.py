@@ -5,8 +5,11 @@ import pandas as pd
 
 from PatientX.models.ClusteringModelInterface import ClusteringModelInterface
 from bertopic import BERTopic
+from bertopic.backend._utils import select_backend
 from bertopic._utils import (
     MyLogger,
+    check_documents_type,
+    check_embeddings_shape,
 )
 from scipy.sparse import csr_matrix
 from bertopic.representation import BaseRepresentation
@@ -39,6 +42,7 @@ class BERTopicModel(ClusteringModelInterface, BERTopic):
         self.representation_model = representation_model
         self.verbose = verbose
         self.nr_docs = nr_docs
+        self.fit_documents = None
 
         super().__init__(language=language, top_n_words=top_n_words,
                          n_gram_range=n_gram_range, min_topic_size=min_topic_size,
@@ -93,6 +97,112 @@ class BERTopicModel(ClusteringModelInterface, BERTopic):
 
         # visualize term rank
         super().visualize_term_rank()
+
+    @override
+    def fit(self,
+        documents: List[str],
+        embeddings: np.ndarray = None,
+        images: List[str] = None,
+        y: Union[List[int], np.ndarray] = None,):
+        if documents is not None:
+            check_documents_type(documents)
+            check_embeddings_shape(embeddings, documents)
+
+        doc_ids = range(len(documents)) if documents is not None else range(len(images))
+        documents = pd.DataFrame({"Document": documents, "ID": doc_ids, "Topic": None, "Image": images})
+
+        # Extract embeddings
+        if embeddings is None:
+            logger.info("Embedding - Transforming documents to embeddings.")
+            self.embedding_model = select_backend(self.embedding_model, language=self.language, verbose=self.verbose)
+            embeddings = self._extract_embeddings(
+                documents.Document.values.tolist(),
+                images=images,
+                method="document",
+                verbose=self.verbose,
+            )
+            logger.info("Embedding - Completed \u2713")
+        else:
+            if self.embedding_model is not None:
+                self.embedding_model = select_backend(
+                    self.embedding_model, language=self.language, verbose=self.verbose
+                )
+
+        # Guided Topic Modeling
+        if self.seed_topic_list is not None and self.embedding_model is not None:
+            y, embeddings = self._guided_topic_modeling(embeddings)
+
+        # Reduce dimensionality and fit UMAP model
+        umap_embeddings = self._reduce_dimensionality(embeddings, y)
+
+        # Zero-shot Topic Modeling
+        if self._is_zeroshot():
+            documents, embeddings, assigned_documents, assigned_embeddings = self._zeroshot_topic_modeling(
+                documents, embeddings
+            )
+
+            # Filter UMAP embeddings to only non-assigned embeddings to be used for clustering
+            if len(documents) > 0:
+                umap_embeddings = self.umap_model.transform(embeddings)
+
+        if len(documents) > 0:
+            # Cluster reduced embeddings
+            documents, probabilities = self._cluster_embeddings(umap_embeddings, documents, y=y)
+            if self._is_zeroshot() and len(assigned_documents) > 0:
+                documents, embeddings = self._combine_zeroshot_topics(
+                    documents, embeddings, assigned_documents, assigned_embeddings
+                )
+        else:
+            # All documents matches zero-shot topics
+            documents = assigned_documents
+            embeddings = assigned_embeddings
+
+        # Sort and Map Topic IDs by their frequency
+        if not self.nr_topics:
+            documents = self._sort_mappings_by_frequency(documents)
+
+        # Create documents from images if we have images only
+        if documents.Document.values[0] is None:
+            custom_documents = self._images_to_text(documents, embeddings)
+
+            # Extract topics by calculating c-TF-IDF
+            self._extract_topics(custom_documents, embeddings=embeddings)
+            self._create_topic_vectors(documents=documents, embeddings=embeddings)
+
+            # Reduce topics
+            if self.nr_topics:
+                custom_documents = self._reduce_topics(custom_documents)
+
+            # Save the top 3 most representative documents per topic
+            self._save_representative_docs(custom_documents)
+        else:
+            # Extract topics by calculating c-TF-IDF
+            self._extract_topics(documents, embeddings=embeddings, verbose=self.verbose)
+
+            # Reduce topics
+            if self.nr_topics:
+                documents = self._reduce_topics(documents)
+
+            # Save the top 3 most representative documents per topic
+            self._save_representative_docs(documents)
+
+        # In the case of zero-shot topics, probability will come from cosine similarity,
+        # and the HDBSCAN model will be removed
+        if self._is_zeroshot() and len(assigned_documents) > 0:
+            self.hdbscan_model = BaseCluster()
+            sim_matrix = cosine_similarity(embeddings, np.array(self.topic_embeddings_))
+
+            if self.calculate_probabilities:
+                self.probabilities_ = sim_matrix
+            else:
+                self.probabilities_ = np.max(sim_matrix, axis=1)
+        else:
+            self.probabilities_ = self._map_probabilities(probabilities, original_topics=True)
+        predictions = documents.Topic.to_list()
+
+        self.fit_documents = documents
+
+        return predictions, self.probabilities_
 
     def get_bertopic_only_results(self) -> tuple[Any, dict[int, list[tuple[str | list[str], Any] | tuple[str, float]]]]:
         return self.representative_docs_, self.bertopic_representative_words

@@ -3,13 +3,14 @@ import pandas as pd
 import json
 import pickle
 from pathlib import Path
+from bertopic import BERTopic
 
 from bertopic.representation._base import BaseRepresentation
 
 def load_bertopic_model_from_pkl(filepath: Path):
     if filepath.exists():
-        with open(filepath, 'rb') as f:
-            return pickle.load(f)
+        print("returning")
+        return BERTopic.load(str(filepath))
 
     return None
 

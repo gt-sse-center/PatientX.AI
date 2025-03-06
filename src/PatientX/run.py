@@ -157,7 +157,7 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionalit
     sys.stdout.write("Done!\n")
 
     sys.stdout.write("Fitting Model...\n")
-    preds, probs = bertopic_model.fit(documents=documents, embeddings=document_embeddings)
+    bertopic_model.fit(documents=documents, embeddings=document_embeddings)
 
     sys.stdout.write("\nSaving model output...\n")
 
