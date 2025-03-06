@@ -39,14 +39,14 @@ Mapping[
     representation_model = None
 
     match llm_option:
-        case 'mistral':
+        case 'mistral-small':
             representation_model = MistralRepresentation(prompt=prompt)
-        case 'gpt-4o':
+        case 'gpt4o':
             # TODO: update to use gpt
             representation_model = MistralRepresentation(prompt=prompt)
             pass
 
-    return representation_model.extract_topics(bertopic_model, documents=documents, c_tf_idf=bertopic_model.c_tf_idf,
+    return representation_model.extract_topics(bertopic_model, documents=bertopic_model.fit_documents, c_tf_idf=bertopic_model.c_tf_idf_,
                                                topics=bertopic_model.topics_)
 
 
@@ -64,7 +64,7 @@ def run_llm_on_bertopic_results_csv(datapath: Annotated[Path, typer.Option(
 )], llm_option: Annotated[RepresentationModel, typer.Option(case_sensitive=False)], prompt: str = DEFAULT_PROMPT):
     documents = read_csv_files_in_directory(datapath)
     documents = pd.DataFrame(documents)
-    run_llm_on_bertopic_results_dataframe(documents=documents, bertopic_results_filepath=bertopic_results_filepath, llm_option=llm_option, prompt=prompt)
+    print(run_llm_on_bertopic_results_dataframe(documents=documents, bertopic_results_filepath=bertopic_results_filepath, llm_option=llm_option, prompt=prompt))
 
 
 if __name__ == '__main__':
