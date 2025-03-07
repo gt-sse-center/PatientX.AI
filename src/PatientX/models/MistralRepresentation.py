@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 from tqdm import tqdm
+import json
 from scipy.sparse import csr_matrix
 from typing import Mapping, List, Tuple, Any, Union, Callable
 from bertopic.representation._base import BaseRepresentation
@@ -126,7 +127,7 @@ class MistralRepresentation(BaseRepresentation):
                 "prompt": prompt,
             }
 
-        return stream_response(model_url, payload)
+        return self.stream_response(model_url, payload)
 
     def extract_topics(
         self,

@@ -3,11 +3,12 @@ from enum import Enum
 from pathlib import Path
 import pickle
 import sys
-from typing import List, Optional
+from typing import List, Optional, Any
 
 import pandas as pd
 import numpy as np
-from torch import Tensor
+from numpy import ndarray
+from pandas import DataFrame
 from bertopic.vectorizers import ClassTfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.cluster import KMeans, AgglomerativeClustering
@@ -110,7 +111,8 @@ def get_clustering_model(clustering_model: ClusteringModel) -> Optional[ClusterM
 
 def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionality_reduction: DimensionalityReduction,
                        clustering_model: ClusteringModel, representationmodel: RepresentationModel, min_topic_size: int,
-                       nr_docs: int, document_diversity: float, low_memory: bool) -> tuple[pd.DataFrame, Tensor]:
+                       nr_docs: int, document_diversity: float, low_memory: bool, result_path: Path) -> tuple[
+    DataFrame, ndarray | Any, tuple[Any, dict[int, list[tuple[str | list[str], Any] | tuple[str, float]]]]]:
     """
     Run the bertopic model on the given documents with the given model parameters
 
@@ -162,12 +164,13 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionalit
     sys.stdout.write("Done!\n")
 
     sys.stdout.write("Fitting Model...\n")
-    bertopic_model = bertopic_model.fit(documents=documents, embeddings=document_embeddings)
-    bertopic_model.transform(documents, embeddings=document_embeddings)
+    preds, probs = bertopic_model.fit(documents=documents, embeddings=document_embeddings)
 
-    sys.stdout.write("Saving model output...\n")
+    sys.stdout.write("\nSaving model output...\n")
 
     # save model output
+    bertopic_model.save(result_path / "bertopic_model.pkl", serialization="pickle")
+
     results_df = bertopic_model.get_topic_info()
     rep_docs = results_df['Representative_Docs'].tolist()
 
@@ -176,8 +179,31 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionalit
 
     results_df = pd.concat([results_df, rep_docs_df], axis=1)
 
-    return results_df, document_embeddings
+    return results_df, document_embeddings, bertopic_model.get_bertopic_only_results()
 
+def format_bertopic_results(results_df: pd.DataFrame, representative_docs: dict[int, List[str]], bertopic_representative_words: pd.DataFrame) -> pd.DataFrame:
+    """
+    Take relevant dataframes and return one formatted dataframe holding bertopic intermediate results
+
+    :param results_df: Result of full pipeline
+    :param representative_docs: representative docs for each topic
+    :param bertopic_representative_words: representative words for each topic
+    :return: dataframe containing topics, counts, representative words, representative docs
+    """
+    get_words = lambda xs: str([x[0] for x in xs])
+    bertopic_representative_words = {k: get_words(v) for k, v in bertopic_representative_words.items()}
+
+    counts = results_df['Count']
+    topics = results_df['Topic']
+
+    bertopic_results_df = pd.DataFrame.from_dict(representative_docs, orient='index')
+    rep_words = pd.DataFrame.from_dict(bertopic_representative_words, orient='index')
+
+    bertopic_final_res = pd.concat(
+        [topics.reset_index(), counts.reset_index(), rep_words.reset_index(), bertopic_results_df.reset_index()],
+        axis=1)
+
+    return bertopic_final_res
 
 @app.command()
 @use_yaml_config()
@@ -224,13 +250,19 @@ def main(
 
     sys.stdout.write("Done!\n")
 
-    results_df, document_embeddings = run_bertopic_model(documents=documents, embeddingspath=embeddingspath,
+    results_df, document_embeddings, bertopic_only_results = run_bertopic_model(documents=documents, embeddingspath=embeddingspath,
                                                          dimensionality_reduction=dimensionality_reduction,
                                                          clustering_model=clustering_model,
                                                          representationmodel=representationmodel,
                                                          min_topic_size=min_topic_size, low_memory=low_memory,
-                                                         nr_docs=nr_docs, document_diversity=document_diversity)
+                                                         nr_docs=nr_docs, document_diversity=document_diversity, result_path=resultpath)
     results_df.to_csv(resultpath / "output.csv", index=False)
+
+    representative_docs, bertopic_representative_words = bertopic_only_results
+
+    bertopic_final_res = format_bertopic_results(results_df, representative_docs, bertopic_representative_words)
+    bertopic_final_res.to_csv(resultpath / "bertopic_final_results.csv", index=False)
+
 
     if save_embeddings:
         pickle.dump(document_embeddings, open(resultpath / "embeddings.pkl", "wb"))
