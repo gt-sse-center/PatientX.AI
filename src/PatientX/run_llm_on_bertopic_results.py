@@ -73,7 +73,8 @@ def run_llm_on_bertopic_results_csv(datapath: Annotated[Path, typer.Option(
     """
         Run the selected llm on top of bertopic results. Requires a saved bertopic model in pkl format
 
-        :param documents: dataframe holding documents
+        :param output_dir: directory to save results to
+        :param datapath: dataframe holding documents
         :param bertopic_results_filepath: filepath to pkl file holding bertopic model that was trained on passed in documents
         :param llm_option: mistral-small or gpt4o
         :param prompt: prompt to pass into LLM. Use [DOCUMENTS] and [KEYWORDS] as placeholders for documents and keywords
