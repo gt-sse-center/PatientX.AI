@@ -5,6 +5,7 @@ import pandas as pd
 
 from PatientX.models.ClusteringModelInterface import ClusteringModelInterface
 from bertopic import BERTopic
+from bertopic.cluster import BaseCluster
 from bertopic.backend._utils import select_backend
 from bertopic._utils import (
     MyLogger,
@@ -12,6 +13,7 @@ from bertopic._utils import (
     check_embeddings_shape,
 )
 from scipy.sparse import csr_matrix
+from sklearn.metrics.pairwise import cosine_similarity
 from bertopic.representation import BaseRepresentation
 from typing_extensions import override
 from pathlib import Path
@@ -200,6 +202,7 @@ class BERTopicModel(ClusteringModelInterface, BERTopic):
             self.probabilities_ = self._map_probabilities(probabilities, original_topics=True)
         predictions = documents.Topic.to_list()
 
+        # NOTE: this line is the only change from bertopic.BERTopic.fit_transform()
         self.fit_documents = documents
 
         return predictions, self.probabilities_

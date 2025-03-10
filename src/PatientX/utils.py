@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 from typing import List
 import pandas as pd
+from bertopic import BERTopic
 
 def read_csv_files_in_directory(datafolder: Path) -> List[str]:
     """
@@ -47,3 +48,9 @@ def read_csv_files_in_directory(datafolder: Path) -> List[str]:
         raise KeyError("Check README file for proper data format")
 
     return cleaned_text.tolist()
+
+def load_bertopic_model_from_pkl(filepath: Path):
+    if filepath.exists():
+        return BERTopic.load(str(filepath))
+
+    return None

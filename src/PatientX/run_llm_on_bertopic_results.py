@@ -7,8 +7,7 @@ from typing_extensions import Annotated
 
 from PatientX.models.MistralRepresentation import MistralRepresentation
 from PatientX.RepresentationModel import RepresentationModel
-from llm_utils import load_bertopic_model_from_pkl
-from utils import read_csv_files_in_directory
+from utils import read_csv_files_in_directory, load_bertopic_model_from_pkl
 
 DEFAULT_PROMPT = """
 I have topic that contains the following documents: \n[DOCUMENTS]
