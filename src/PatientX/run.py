@@ -23,6 +23,7 @@ from typer_config.decorators import use_yaml_config
 from PatientX.models.BERTopicModel import BERTopicModel
 from PatientX.models.MistralRepresentation import MistralRepresentation
 from PatientX.utils import read_csv_files_in_directory
+from PatientX.RepresentationModel import RepresentationModel
 
 app = typer.Typer()
 
@@ -42,14 +43,6 @@ class DimensionalityReduction(str, Enum):
     """
     umap = "umap",
     pca = "pca"
-
-
-class RepresentationModel(str, Enum):
-    """
-    Enum for representation algorithm options
-    """
-    mistral_small = "mistral-small",
-    gpt4o = "gpt4o"
 
 
 def get_representation_model(model_type: RepresentationModel, nr_docs: int = 10, document_diversity: float = 0.1):
@@ -164,7 +157,7 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionalit
     sys.stdout.write("Done!\n")
 
     sys.stdout.write("Fitting Model...\n")
-    preds, probs = bertopic_model.fit(documents=documents, embeddings=document_embeddings)
+    bertopic_model.fit(documents=documents, embeddings=document_embeddings)
 
     sys.stdout.write("\nSaving model output...\n")
 
