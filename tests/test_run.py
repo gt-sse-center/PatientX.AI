@@ -30,7 +30,33 @@ document_diversity_values = [
     1.2
 ]
 
+nr_rep_docs_values = [
+    0,
+    1,
+    10,
+    20
+]
+
 result_df = pd.DataFrame({"result": ["result"]})
+
+
+@pytest.mark.parametrize("nr_rep_docs_value", nr_rep_docs_values)
+def test_num_rep_docs_args(fs, nr_rep_docs_value):
+    with patch("PatientX.run.get_representation_model", return_value=None) as mock_representation_model, \
+            patch("PatientX.run.run_bertopic_model",
+                  return_value=(pd.DataFrame(), pd.DataFrame(), (pd.DataFrame(), pd.DataFrame()))) as mock_bertopic, \
+            patch("PatientX.run.format_bertopic_results", return_value=pd.DataFrame()) as mock_bertopic_output:
+        repo_root = Path(__file__).parent.parent
+        output_dir = Path("test_output")
+        fs.create_dir(output_dir)
+
+        input_dir = repo_root / "data" / "test_data" / "pass"
+        fs.add_real_directory(input_dir)
+
+        result = CliRunner().invoke(app, ["--datapath", input_dir, "--resultpath", output_dir, "--nr-representative-docs", nr_rep_docs_value])
+
+        assert (result.exit_code != 0) == (nr_rep_docs_value == 0)
+
 
 @pytest.mark.parametrize("dimensionality_reduction_model", dimensionality_reduction_models)
 @pytest.mark.parametrize("clustering_model", clustering_models)
@@ -58,6 +84,7 @@ def test_run_to_completion(fs, dimensionality_reduction_model, clustering_model,
             result = CliRunner().invoke(app,
                                         ["--datapath", input_dir, "--resultpath", output_dir, "--min-topic-size", 10,
                                          "--document-diversity", document_diversity, "--no-save-embeddings"])
+
 
         assert result.exit_code == 0
         assert embeddings_file.exists() == save_embeddings
