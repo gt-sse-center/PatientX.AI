@@ -15,6 +15,7 @@ Based on the above information, can you give a short label of the topic?
 
 app = typer.Typer()
 
+
 @app.command()
 def run_llm_on_bertopic_results_csv(bertopic_results_filepath: Annotated[Path, typer.Option(
     exists=True,
@@ -39,8 +40,8 @@ def run_llm_on_bertopic_results_csv(bertopic_results_filepath: Annotated[Path, t
     representation_model = get_representation_model(llm_option, prompt=prompt)
 
     llm_results = representation_model.extract_topics(bertopic_model, documents=bertopic_model.fit_documents,
-                                               c_tf_idf=bertopic_model.c_tf_idf_,
-                                               topics=bertopic_model.bertopic_representative_words)
+                                                      c_tf_idf=bertopic_model.c_tf_idf_,
+                                                      topics=bertopic_model.bertopic_representative_words)
 
     llm_results_df = pd.DataFrame.from_dict(llm_results, orient='index')
     llm_results_df.to_csv(output_dir / 'llm_results.csv')

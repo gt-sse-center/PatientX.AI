@@ -13,6 +13,7 @@ import numpy as np
 import openai
 import pandas as pd
 
+
 def read_csv_files_in_directory(datafolder: Path) -> List[str]:
     """
     Read in data from all CSV files in directory
@@ -57,13 +58,16 @@ def read_csv_files_in_directory(datafolder: Path) -> List[str]:
 
     return cleaned_text.tolist()
 
+
 def load_bertopic_model_from_pkl(filepath: Path):
     if filepath.exists():
         return BERTopic.load(str(filepath))
 
     return None
 
-def get_representation_model(model_type: RepresentationModel, nr_docs: int = 10, document_diversity: float = 0.1, api_key: str=None, openai_model_name="gpt-4o", prompt=None):
+
+def get_representation_model(model_type: RepresentationModel, nr_docs: int = 10, document_diversity: float = 0.1,
+                             api_key: str = None, openai_model_name="gpt-4o", prompt=None):
     """
     Get an instance of the chosen representation model
 

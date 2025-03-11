@@ -43,6 +43,7 @@ class DimensionalityReduction(str, Enum):
     umap = "umap",
     pca = "pca"
 
+
 def get_dimensionality_reduction_model(dim_reduction_model: DimensionalityReduction) -> Optional[TransformerMixin]:
     """
     Get a model instance of the chosen dimensionality reduction algorithm
@@ -85,7 +86,8 @@ def get_clustering_model(clustering_model: ClusteringModel) -> Optional[ClusterM
 
 def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionality_reduction: DimensionalityReduction,
                        clustering_model: ClusteringModel, representationmodel: RepresentationModel, min_topic_size: int,
-                       nr_docs: int, document_diversity: float, low_memory: bool, result_path: Path, nr_representative_docs: int, prompt: str, api_key: str) -> tuple[
+                       nr_docs: int, document_diversity: float, low_memory: bool, result_path: Path,
+                       nr_representative_docs: int, prompt: str, api_key: str) -> tuple[
 
     DataFrame, ndarray | Any, tuple[Any, dict[int, list[tuple[str | list[str], Any] | tuple[str, float]]]]]:
     """
@@ -107,7 +109,8 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionalit
     :return: tuple of pd.DataFrame holding results and tensor holding document embeddings
     """
     representation_model = get_representation_model(model_type=representationmodel, nr_docs=nr_docs,
-                                                    document_diversity=document_diversity, api_key=api_key, prompt=prompt)
+                                                    document_diversity=document_diversity, api_key=api_key,
+                                                    prompt=prompt)
 
     medical_embedding_model = SentenceTransformer('pritamdeka/S-PubMedBert-MS-MARCO')
     custom_stop_words = list(
@@ -125,7 +128,8 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionalit
     bertopic_model = BERTopicModel(ctfidf_model=ctfidf_model, embedding_model=medical_embedding_model, verbose=True,
                                    min_topic_size=min_topic_size, vectorizer_model=vectorizer_model,
                                    representation_model=representation_model, low_memory=low_memory,
-                                   hdbscan_model=clustering_model, umap_model=dimensionality_reduction_model, nr_representative_docs=nr_representative_docs)
+                                   hdbscan_model=clustering_model, umap_model=dimensionality_reduction_model,
+                                   nr_representative_docs=nr_representative_docs)
 
     document_embeddings = None
     if embeddingspath.is_file():
@@ -160,7 +164,9 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionalit
 
     return results_df, document_embeddings, bertopic_model.get_bertopic_only_results()
 
-def format_bertopic_results(results_df: pd.DataFrame, representative_docs: dict[int, List[str]], bertopic_representative_words: pd.DataFrame) -> pd.DataFrame:
+
+def format_bertopic_results(results_df: pd.DataFrame, representative_docs: dict[int, List[str]],
+                            bertopic_representative_words: pd.DataFrame) -> pd.DataFrame:
     """
     Take relevant dataframes and return one formatted dataframe holding bertopic intermediate results
 
@@ -184,6 +190,7 @@ def format_bertopic_results(results_df: pd.DataFrame, representative_docs: dict[
 
     return bertopic_final_res
 
+
 @app.command()
 @use_yaml_config()
 def main(
@@ -205,11 +212,14 @@ def main(
             dir_okay=True,
             resolve_path=True,
         )] = Path("./output"),
-        nr_representative_docs: Annotated[int, typer.Option(min=1, help="Number of representative docs to save in intermediate Bertopic results")] = 10,
+        nr_representative_docs: Annotated[int, typer.Option(min=1,
+                                                            help="Number of representative docs to save in intermediate Bertopic results")] = 10,
         low_memory: Annotated[bool, typer.Option()] = False,
-        nr_docs: Annotated[int, typer.Option(min=1, help="Number of representative docs to pass to representation model")] = 10,
+        nr_docs: Annotated[
+            int, typer.Option(min=1, help="Number of representative docs to pass to representation model")] = 10,
         document_diversity: Annotated[float, typer.Option()] = 0.1,
-        representationmodel: Annotated[RepresentationModel, typer.Option(case_sensitive=False)] = RepresentationModel.mistral_small,
+        representationmodel: Annotated[
+            RepresentationModel, typer.Option(case_sensitive=False)] = RepresentationModel.mistral_small,
         prompt: Annotated[str, typer.Option()] = None,
         min_topic_size: Annotated[int, typer.Option()] = 100,
         clustering_model: Annotated[ClusteringModel, typer.Option(case_sensitive=False)] = ClusteringModel.hdbscan,
@@ -231,19 +241,24 @@ def main(
 
     sys.stdout.write("Done!\n")
 
-    results_df, document_embeddings, bertopic_only_results = run_bertopic_model(documents=documents, embeddingspath=embeddingspath,
-                                                         dimensionality_reduction=dimensionality_reduction,
-                                                         clustering_model=clustering_model,
-                                                         representationmodel=representationmodel,
-                                                         min_topic_size=min_topic_size, low_memory=low_memory,
-                                                         nr_docs=nr_docs, document_diversity=document_diversity, result_path=resultpath, nr_representative_docs=nr_representative_docs, prompt=prompt, api_key=api_key)
+    results_df, document_embeddings, bertopic_only_results = run_bertopic_model(documents=documents,
+                                                                                embeddingspath=embeddingspath,
+                                                                                dimensionality_reduction=dimensionality_reduction,
+                                                                                clustering_model=clustering_model,
+                                                                                representationmodel=representationmodel,
+                                                                                min_topic_size=min_topic_size,
+                                                                                low_memory=low_memory,
+                                                                                nr_docs=nr_docs,
+                                                                                document_diversity=document_diversity,
+                                                                                result_path=resultpath,
+                                                                                nr_representative_docs=nr_representative_docs,
+                                                                                prompt=prompt, api_key=api_key)
     results_df.to_csv(resultpath / "output.csv", index=False)
 
     representative_docs, bertopic_representative_words = bertopic_only_results
 
     bertopic_final_res = format_bertopic_results(results_df, representative_docs, bertopic_representative_words)
     bertopic_final_res.to_csv(resultpath / "bertopic_final_results.csv", index=False)
-
 
     if save_embeddings:
         pickle.dump(document_embeddings, open(resultpath / "embeddings.pkl", "wb"))
