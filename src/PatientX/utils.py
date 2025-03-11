@@ -3,11 +3,15 @@ import sys
 from pathlib import Path
 from typing import List
 
+from PatientX.models.MistralRepresentation import MistralRepresentation
+from PatientX.RepresentationModel import RepresentationModel
+from PatientX.models.OpenAI import OpenAI
+
 from bertopic import BERTopic
-from bertopic.representation import OpenAI
+# from bertopic.representation import OpenAI
+import numpy as np
 import openai
 import pandas as pd
-from PatientX.RepresentationModel import RepresentationModel
 
 def read_csv_files_in_directory(datafolder: Path) -> List[str]:
     """
@@ -74,8 +78,8 @@ def get_representation_model(model_type: RepresentationModel, nr_docs: int = 10,
             return MistralRepresentation(nr_docs=nr_docs, diversity=np.clip(document_diversity, 0, 1),
                                          api="generate", prompt=prompt)
         case "gpt4o":
-            client = openai.OpenAI(key=api_key)
+            client = openai.OpenAI(api_key=api_key)
 
-            return OpenAI(client=client, model=openai_model_name, prompt=prompt)
+            return OpenAI(client=client, model=openai_model_name, prompt=prompt, chat=True)
         case _:
             return None

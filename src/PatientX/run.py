@@ -85,12 +85,13 @@ def get_clustering_model(clustering_model: ClusteringModel) -> Optional[ClusterM
 
 def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionality_reduction: DimensionalityReduction,
                        clustering_model: ClusteringModel, representationmodel: RepresentationModel, min_topic_size: int,
-                       nr_docs: int, document_diversity: float, low_memory: bool, result_path: Path, nr_representative_docs: int) -> tuple[
+                       nr_docs: int, document_diversity: float, low_memory: bool, result_path: Path, nr_representative_docs: int, prompt: str, api_key: str) -> tuple[
 
     DataFrame, ndarray | Any, tuple[Any, dict[int, list[tuple[str | list[str], Any] | tuple[str, float]]]]]:
     """
     Run the bertopic model on the given documents with the given model parameters
 
+    :param api_key: OpenAI API key
     :param nr_representative_docs: Number of representative docs to pass to representation model
     :param result_path: output path for results
     :param prompt: prompt for LLM
@@ -106,7 +107,7 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionalit
     :return: tuple of pd.DataFrame holding results and tensor holding document embeddings
     """
     representation_model = get_representation_model(model_type=representationmodel, nr_docs=nr_docs,
-                                                    document_diversity=document_diversity, api_key=None, prompt=prompt)
+                                                    document_diversity=document_diversity, api_key=api_key, prompt=prompt)
 
     medical_embedding_model = SentenceTransformer('pritamdeka/S-PubMedBert-MS-MARCO')
     custom_stop_words = list(
@@ -215,6 +216,7 @@ def main(
         dimensionality_reduction: Annotated[
             DimensionalityReduction, typer.Option(case_sensitive=False)] = DimensionalityReduction.umap,
         save_embeddings: Annotated[bool, typer.Option()] = False,
+        api_key: Annotated[str, typer.Option()] = None
 ):
     datapath = Path(datapath)
     resultpath = Path(resultpath)
@@ -234,7 +236,7 @@ def main(
                                                          clustering_model=clustering_model,
                                                          representationmodel=representationmodel,
                                                          min_topic_size=min_topic_size, low_memory=low_memory,
-                                                         nr_docs=nr_docs, document_diversity=document_diversity, result_path=resultpath, nr_representative_docs=nr_representative_docs, prompt=prompt)
+                                                         nr_docs=nr_docs, document_diversity=document_diversity, result_path=resultpath, nr_representative_docs=nr_representative_docs, prompt=prompt, api_key=api_key)
     results_df.to_csv(resultpath / "output.csv", index=False)
 
     representative_docs, bertopic_representative_words = bertopic_only_results
