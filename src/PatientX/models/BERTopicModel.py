@@ -22,7 +22,7 @@ logger = MyLogger()
 
 
 class BERTopicModel(ClusteringModelInterface, BERTopic):
-    def __init__(self, language='english', top_n_words=10, n_gram_range=(1, 1), min_topic_size=10, nr_topics=None,
+    def __init__(self, nr_representative_docs, language='english', top_n_words=10, n_gram_range=(1, 1), min_topic_size=10, nr_topics=None,
                  low_memory=False, calculate_probabilities=False, seed_topic_list=None, zeroshot_topic_list=None,
                  zeroshot_min_similarity=0.7, embedding_model=None, umap_model=None, hdbscan_model=None,
                  vectorizer_model=None, ctfidf_model=None, representation_model=None, verbose=False, nr_docs=10):
@@ -45,6 +45,7 @@ class BERTopicModel(ClusteringModelInterface, BERTopic):
         self.verbose = verbose
         self.nr_docs = nr_docs
         self.fit_documents = None
+        self.nr_representative_docs = nr_representative_docs
 
         super().__init__(language=language, top_n_words=top_n_words,
                          n_gram_range=n_gram_range, min_topic_size=min_topic_size,
@@ -65,7 +66,7 @@ class BERTopicModel(ClusteringModelInterface, BERTopic):
             documents,
             self.topic_representations_,
             nr_samples=500,
-            nr_repr_docs=self.nr_docs,
+            nr_repr_docs=self.nr_representative_docs,
         )
         self.representative_docs_ = repr_docs
 
