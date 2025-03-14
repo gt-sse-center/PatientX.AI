@@ -38,6 +38,7 @@ nr_rep_docs_values = [
 ]
 
 content_expected_pairs = [
+    ("", []),
     ("a\nb\nc\nd\n", ["a\n", "b\n", "c\n", "d\n"]),
     ("\n", ["\n"]),
     ("ab\n\n", ["ab\n", "\n"]),
