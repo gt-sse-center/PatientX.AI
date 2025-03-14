@@ -25,6 +25,13 @@ def read_data_in_txt_file(filepath: Path) -> List[str]:
 
     return []
 
+def read_data_in_txt_file(filepath: Path) -> List[str]:
+    if filepath.is_file():
+        with filepath.open() as f:
+            return f.readlines()
+
+    return []
+
 def read_csv_files_in_directory(datafolder: Path) -> List[str]:
     """
     Read in data from all CSV files in directory

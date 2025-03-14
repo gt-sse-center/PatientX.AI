@@ -37,13 +37,21 @@ nr_rep_docs_values = [
     20
 ]
 
-content_expected_pairs = [
-    ("", []),
-    ("a\nb\nc\nd\n", ["a\n", "b\n", "c\n", "d\n"]),
-    ("\n", ["\n"]),
-    ("ab\n\n", ["ab\n", "\n"]),
-    ("!@\naf\n", ["!@\n", "af\n"])
+txt_file_contents = [
+    "",
+    "a\nb\nc\nd\n",
+    "\n",
+    "!@\naf\n"
 ]
+
+txt_expected_outputs = [
+    [],
+    ["a", "b", "c", "d"],
+    [],
+    ["!@", "af"]
+]
+
+content_expected_pairs = list(zip(txt_file_contents, txt_expected_outputs))
 
 result_df = pd.DataFrame({"result": ["result"]})
 
@@ -62,7 +70,7 @@ def test_num_rep_docs_args(fs, nr_rep_docs_value):
         fs.add_real_directory(input_dir)
 
         result = CliRunner().invoke(app,
-                                    [str(input_dir), str(output_dir), "--nr-representative-docs",
+                                    ["--datapath", input_dir, "--resultpath", output_dir, "--nr-representative-docs",
                                      nr_rep_docs_value])
 
         assert (result.exit_code != 0) == (nr_rep_docs_value == 0)
@@ -91,11 +99,11 @@ def test_run_to_completion(fs, dimensionality_reduction_model, clustering_model,
 
         if save_embeddings:
             result = CliRunner().invoke(app,
-                                        [str(input_dir), str(output_dir), "--min-topic-size", 10,
+                                        ["--datapath", input_dir, "--resultpath", output_dir, "--min-topic-size", 10,
                                          "--document-diversity", document_diversity, "--save-embeddings"])
         else:
             result = CliRunner().invoke(app,
-                                        [str(input_dir), str(output_dir), "--min-topic-size", 10,
+                                        ["--datapath", input_dir, "--resultpath", output_dir, "--min-topic-size", 10,
                                          "--document-diversity", document_diversity, "--no-save-embeddings"])
 
         assert result.exit_code == 0
@@ -136,13 +144,14 @@ def test_read_csv_files_incorrect_structure():
         read_csv_files_in_directory(missing_dir)
 
 
-@pytest.mark.parametrize("content_expected_pair", content_expected_pairs)
-def test_read_data_in_txt_file(fs, content_expected_pair):
-    fs.create_file("file.txt", contents=content_expected_pair[0])
+@pytest.mark.parametrize("contents_expected_pairs", content_expected_pairs)
+def test_read_data_in_txt_file(fs, contents_expected_pairs):
+    fs.create_file("file.txt", content=content_expected_pairs[0])
 
     read_content = read_data_in_txt_file(Path("file.txt"))
 
-    assert read_content == content_expected_pair[1]
+    assert read_content == content_expected_pairs[1]
 
 def test_read_data_in_txt_file_nonexistent_file(fs):
     assert read_data_in_txt_file(Path("file.txt")) == []
+    
