@@ -5,7 +5,7 @@ import pandas as pd
 from pathlib import Path
 import pytest
 
-from PatientX.utils import read_csv_files_in_directory
+from PatientX.utils import read_csv_files_in_directory, read_data_in_txt_file
 from PatientX.run import app
 
 dimensionality_reduction_models = [
@@ -36,6 +36,22 @@ nr_rep_docs_values = [
     10,
     20
 ]
+
+txt_file_contents = [
+    "",
+    "a\nb\nc\nd\n",
+    "\n",
+    "!@\naf\n"
+]
+
+txt_expected_outputs = [
+    [],
+    ["a", "b", "c", "d"],
+    [],
+    ["!@", "af"]
+]
+
+content_expected_pairs = list(zip(txt_file_contents, txt_expected_outputs))
 
 result_df = pd.DataFrame({"result": ["result"]})
 
@@ -126,3 +142,16 @@ def test_read_csv_files_incorrect_structure():
     # assert something that is not a directory raises a NotADirectory error
     with pytest.raises(NotADirectoryError):
         read_csv_files_in_directory(missing_dir)
+
+
+@pytest.mark.parametrize("contents_expected_pairs", content_expected_pairs)
+def test_read_data_in_txt_file(fs, contents_expected_pairs):
+    fs.create_file("file.txt", content=content_expected_pairs[0])
+
+    read_content = read_data_in_txt_file(Path("file.txt"))
+
+    assert read_content == content_expected_pairs[1]
+
+def test_read_data_in_txt_file_nonexistent_file(fs):
+    assert read_data_in_txt_file(Path("file.txt")) == []
+    
