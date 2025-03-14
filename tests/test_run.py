@@ -4,6 +4,7 @@ from typer.testing import CliRunner
 import pandas as pd
 from pathlib import Path
 import pytest
+import sys
 
 from PatientX.utils import read_csv_files_in_directory, read_data_in_txt_file
 from PatientX.run import app
@@ -37,21 +38,12 @@ nr_rep_docs_values = [
     20
 ]
 
-txt_file_contents = [
-    "",
-    "a\nb\nc\nd\n",
-    "\n",
-    "!@\naf\n"
+content_expected_pairs = [
+    ("", []),
+    ("a\nb\nc\nd\n", ["a", "b", "c", "d"]),
+    ("\n", []),
+    ("!@\naf\n", ["!@", "af"])
 ]
-
-txt_expected_outputs = [
-    [],
-    ["a", "b", "c", "d"],
-    [],
-    ["!@", "af"]
-]
-
-content_expected_pairs = list(zip(txt_file_contents, txt_expected_outputs))
 
 result_df = pd.DataFrame({"result": ["result"]})
 
@@ -144,13 +136,13 @@ def test_read_csv_files_incorrect_structure():
         read_csv_files_in_directory(missing_dir)
 
 
-@pytest.mark.parametrize("contents_expected_pairs", content_expected_pairs)
-def test_read_data_in_txt_file(fs, contents_expected_pairs):
-    fs.create_file("file.txt", contents=content_expected_pairs[0])
+@pytest.mark.parametrize("content_expected_pair", content_expected_pairs)
+def test_read_data_in_txt_file(fs, content_expected_pair):
+    fs.create_file("file.txt", contents=content_expected_pair[0])
 
     read_content = read_data_in_txt_file(Path("file.txt"))
 
-    assert read_content == content_expected_pairs[1]
+    assert read_content == content_expected_pair[1]
 
 def test_read_data_in_txt_file_nonexistent_file(fs):
     assert read_data_in_txt_file(Path("file.txt")) == []
