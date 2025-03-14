@@ -53,7 +53,9 @@ def test_num_rep_docs_args(fs, nr_rep_docs_value):
         input_dir = repo_root / "data" / "test_data" / "pass"
         fs.add_real_directory(input_dir)
 
-        result = CliRunner().invoke(app, ["--datapath", input_dir, "--resultpath", output_dir, "--nr-representative-docs", nr_rep_docs_value])
+        result = CliRunner().invoke(app,
+                                    ["--datapath", input_dir, "--resultpath", output_dir, "--nr-representative-docs",
+                                     nr_rep_docs_value])
 
         assert (result.exit_code != 0) == (nr_rep_docs_value == 0)
 
@@ -64,7 +66,8 @@ def test_num_rep_docs_args(fs, nr_rep_docs_value):
 @pytest.mark.parametrize("document_diversity", document_diversity_values)
 def test_run_to_completion(fs, dimensionality_reduction_model, clustering_model, save_embeddings, document_diversity):
     with patch("PatientX.run.get_representation_model", return_value=None) as mock_representation_model, \
-        patch("PatientX.run.run_bertopic_model", return_value=(pd.DataFrame(), pd.DataFrame(), (pd.DataFrame(), pd.DataFrame()))) as mock_bertopic, \
+            patch("PatientX.run.run_bertopic_model",
+                  return_value=(pd.DataFrame(), pd.DataFrame(), (pd.DataFrame(), pd.DataFrame()))) as mock_bertopic, \
             patch("PatientX.run.format_bertopic_results", return_value=pd.DataFrame()) as mock_bertopic_output:
         repo_root = Path(__file__).parent.parent
         output_dir = Path("test_output")
@@ -79,17 +82,19 @@ def test_run_to_completion(fs, dimensionality_reduction_model, clustering_model,
         bertopic_output_file = output_dir / "bertopic_final_results.csv"
 
         if save_embeddings:
-            result = CliRunner().invoke(app, ["--datapath", input_dir, "--resultpath", output_dir, "--min-topic-size", 10, "--document-diversity", document_diversity, "--save-embeddings"])
+            result = CliRunner().invoke(app,
+                                        ["--datapath", input_dir, "--resultpath", output_dir, "--min-topic-size", 10,
+                                         "--document-diversity", document_diversity, "--save-embeddings"])
         else:
             result = CliRunner().invoke(app,
                                         ["--datapath", input_dir, "--resultpath", output_dir, "--min-topic-size", 10,
                                          "--document-diversity", document_diversity, "--no-save-embeddings"])
 
-
         assert result.exit_code == 0
         assert embeddings_file.exists() == save_embeddings
         assert bertopic_output_file.exists()
         assert output_file.exists()
+
 
 def test_read_csv_files_in_directory(fs):
     repo_root = Path(__file__).parent.parent
