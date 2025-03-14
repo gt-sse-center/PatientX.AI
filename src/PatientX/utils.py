@@ -5,10 +5,9 @@ from typing import List
 
 from PatientX.models.MistralRepresentation import MistralRepresentation
 from PatientX.RepresentationModel import RepresentationModel
-from PatientX.models.OpenAI import OpenAI
 
 from bertopic import BERTopic
-# from bertopic.representation import OpenAI
+from bertopic.representation import OpenAI
 import numpy as np
 import openai
 import pandas as pd
