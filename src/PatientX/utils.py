@@ -66,7 +66,7 @@ def read_csv_files_in_directory(datafolder: Path) -> List[str]:
 def read_data(filepath: Path):
     if filepath.is_dir():
         return read_csv_files_in_directory(filepath)
-    elif filepath.is_file() and str(filepath).split(".")[-1] == "txt":
+    elif filepath.is_file() and filepath.suffix == '.txt':
         return read_data_in_txt_file(filepath)
 
     sys.stdout.write("ERROR: Incorrect data format - please check README for proper data format\n")
