@@ -12,7 +12,6 @@ import numpy as np
 import openai
 import pandas as pd
 
-
 def read_data_in_txt_file(filepath: Path) -> List[str]:
     if filepath.is_file():
         with filepath.open() as f:
@@ -64,6 +63,14 @@ def read_csv_files_in_directory(datafolder: Path) -> List[str]:
 
     return cleaned_text.tolist()
 
+def read_data(filepath: Path):
+    if filepath.is_dir():
+        return read_csv_files_in_directory(filepath)
+    elif filepath.is_file() and str(filepath).split(".")[-1] == "txt":
+        return read_data_in_txt_file(filepath)
+
+    sys.stdout.write("ERROR: Incorrect data format - please check README for proper data format\n")
+    return []
 
 def load_bertopic_model_from_pkl(filepath: Path):
     if filepath.exists():
