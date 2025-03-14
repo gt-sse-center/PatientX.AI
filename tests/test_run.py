@@ -4,7 +4,6 @@ from typer.testing import CliRunner
 import pandas as pd
 from pathlib import Path
 import pytest
-import sys
 
 from PatientX.utils import read_csv_files_in_directory, read_data_in_txt_file
 from PatientX.run import app
@@ -39,10 +38,10 @@ nr_rep_docs_values = [
 ]
 
 content_expected_pairs = [
-    ("", []),
-    ("a\nb\nc\nd\n", ["a", "b", "c", "d"]),
-    ("\n", []),
-    ("!@\naf\n", ["!@", "af"])
+    ("a\nb\nc\nd\n", ["a\n", "b\n", "c\n", "d\n"]),
+    ("\n", ["\n"]),
+    ("ab\n\n", ["ab\n", "\n"]),
+    ("!@\naf\n", ["!@\n", "af\n"])
 ]
 
 result_df = pd.DataFrame({"result": ["result"]})
