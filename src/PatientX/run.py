@@ -152,7 +152,10 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionalit
     sys.stdout.write("\nSaving model output...\n")
 
     # save model output
-    bertopic_model.save(result_path / "bertopic_model.pkl", serialization="pickle")
+    # TODO: update loading of bertopic model to work with safetensors approach
+
+    # bertopic_model.save(result_path / "bertopic_model.pkl", serialization="pickle")
+    bertopic_model.save(result_path / "bertopic_model_dir", serialization="safetensors", save_ctfidf=True)
 
     results_df = bertopic_model.get_topic_info()
     rep_docs = results_df['Representative_Docs'].tolist()
