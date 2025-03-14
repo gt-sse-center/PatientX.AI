@@ -146,7 +146,7 @@ def test_read_csv_files_incorrect_structure():
 
 @pytest.mark.parametrize("contents_expected_pairs", content_expected_pairs)
 def test_read_data_in_txt_file(fs, contents_expected_pairs):
-    fs.create_file("file.txt", content=content_expected_pairs[0])
+    fs.create_file("file.txt", contents=content_expected_pairs[0])
 
     read_content = read_data_in_txt_file(Path("file.txt"))
 
@@ -154,4 +154,3 @@ def test_read_data_in_txt_file(fs, contents_expected_pairs):
 
 def test_read_data_in_txt_file_nonexistent_file(fs):
     assert read_data_in_txt_file(Path("file.txt")) == []
-    
