@@ -2,8 +2,16 @@ import csv
 import sys
 from pathlib import Path
 from typing import List
-import pandas as pd
+
+from PatientX.models.MistralRepresentation import MistralRepresentation
+from PatientX.RepresentationModel import RepresentationModel
+
 from bertopic import BERTopic
+from bertopic.representation import OpenAI
+import numpy as np
+import openai
+import pandas as pd
+
 
 def read_csv_files_in_directory(datafolder: Path) -> List[str]:
     """
@@ -49,8 +57,32 @@ def read_csv_files_in_directory(datafolder: Path) -> List[str]:
 
     return cleaned_text.tolist()
 
+
 def load_bertopic_model_from_pkl(filepath: Path):
     if filepath.exists():
         return BERTopic.load(str(filepath))
 
     return None
+
+
+def get_representation_model(model_type: RepresentationModel, nr_docs: int = 10, document_diversity: float = 0.1,
+                             api_key: str = None, openai_model_name="gpt-4o", prompt=None):
+    """
+    Get an instance of the chosen representation model
+
+    :param api_key: Open AI API key
+    :param model_type: Representation model enum
+    :param nr_docs: number of docs to pass into the representation model
+    :param document_diversity: document diversity parameter for choosing docs to passing to the representation model
+    :return: instance of the chosen representation model
+    """
+    match model_type:
+        case "mistral-small":
+            return MistralRepresentation(nr_docs=nr_docs, diversity=np.clip(document_diversity, 0, 1),
+                                         api="generate", prompt=prompt)
+        case "gpt4o":
+            client = openai.OpenAI(api_key=api_key)
+
+            return OpenAI(client=client, model=openai_model_name, prompt=prompt, chat=True)
+        case _:
+            return None

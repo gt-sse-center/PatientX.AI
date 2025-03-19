@@ -16,7 +16,8 @@ dependencies = [
     "datamapplot>=0.1",
     "spacy>=3.8.0",
     "typer ~= 0.9",
-    "typer-config[yaml]>=1.4.2"
+    "typer-config[yaml]>=1.4.2",
+    "openai >= 1.65.5"
 ]
 
 [project.optional-dependencies]
