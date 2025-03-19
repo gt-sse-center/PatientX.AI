@@ -12,6 +12,7 @@ import numpy as np
 import openai
 import pandas as pd
 
+
 def read_data_in_txt_file(filepath: Path) -> List[str]:
     """
     Read data in from txt file
@@ -24,6 +25,7 @@ def read_data_in_txt_file(filepath: Path) -> List[str]:
             return f.readlines()
 
     return []
+
 
 def read_csv_files_in_directory(datafolder: Path) -> List[str]:
     """
@@ -69,6 +71,7 @@ def read_csv_files_in_directory(datafolder: Path) -> List[str]:
 
     return cleaned_text.tolist()
 
+
 def read_data(filepath: Path) -> List[str]:
     """
     Read in data from directory/txt file. If a directory is given, data will be parsed from all csv files in the directory. If a txt file is given, each new line will be treated as it's own document
@@ -82,6 +85,7 @@ def read_data(filepath: Path) -> List[str]:
 
     sys.stdout.write("ERROR: Incorrect data format - please check README for proper data format\n")
     return []
+
 
 def load_bertopic_model_from_pkl(filepath: Path):
     """

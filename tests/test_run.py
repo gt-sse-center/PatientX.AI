@@ -37,6 +37,7 @@ nr_rep_docs_values = [
     20
 ]
 
+# List of tuples containing txt file contents and the expected return value of read_data_in_txt_file()
 content_expected_pairs = [
     ("", []),
     ("a\nb\nc\nd\n", ["a\n", "b\n", "c\n", "d\n"]),
@@ -143,6 +144,7 @@ def test_read_data_in_txt_file(fs, content_expected_pair):
     read_content = read_data_in_txt_file(Path("file.txt"))
 
     assert read_content == content_expected_pair[1]
+
 
 def test_read_data_in_txt_file_nonexistent_file(fs):
     assert read_data_in_txt_file(Path("file.txt")) == []
