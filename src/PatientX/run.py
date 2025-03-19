@@ -84,21 +84,20 @@ def get_clustering_model(clustering_model: ClusteringModel) -> Optional[ClusterM
             sys.stdout.write("WARNING: Unknown clustering model - defaulting to hdbscan\n")
 
 
-def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionality_reduction: DimensionalityReduction,
+def run_bertopic_model(documents: List[str], embeddingspath: Path, result_path: Path,
+                       dimensionality_reduction: DimensionalityReduction,
                        clustering_model: ClusteringModel, representationmodel: RepresentationModel, min_topic_size: int,
-                       nr_docs: int, document_diversity: float, low_memory: bool, result_path: Path,
+                       nr_docs: int, document_diversity: float, low_memory: bool,
                        nr_representative_docs: int, prompt: str, api_key: str) -> tuple[
 
     DataFrame, ndarray | Any, tuple[Any, dict[int, list[tuple[str | list[str], Any] | tuple[str, float]]]]]:
     """
     Run the bertopic model on the given documents with the given model parameters
 
-    :param api_key: OpenAI API key
-    :param nr_representative_docs: Number of representative docs to pass to representation model
-    :param result_path: output path for results
-    :param prompt: prompt for LLM
+
     :param documents: list of documents to run the bertopic algorithm on
     :param embeddingspath: path to saved embeddings to load
+    :param result_path: output path for results
     :param dimensionality_reduction: type of dimensionality reduction algorithm to use
     :param clustering_model: type of clustering algorithm to use
     :param representationmodel: type of representation model to use
@@ -106,7 +105,12 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionalit
     :param nr_docs: number of documents to pass into the representation model
     :param document_diversity: document diversity parameter -> float from 0-1
     :param low_memory: low memory flag
+    :param nr_representative_docs: Number of representative docs to pass to representation model
+    :param prompt: prompt for LLM
+    :param api_key: OpenAI API key
+
     :return: tuple of pd.DataFrame holding results and tensor holding document embeddings
+
     """
     representation_model = get_representation_model(model_type=representationmodel, nr_docs=nr_docs,
                                                     document_diversity=document_diversity, api_key=api_key,
@@ -154,7 +158,6 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, dimensionalit
     # save model output
     # TODO: update loading of bertopic model to work with safetensors approach
 
-    # bertopic_model.save(result_path / "bertopic_model.pkl", serialization="pickle")
     bertopic_model.save(result_path / "bertopic_model_dir", serialization="safetensors", save_ctfidf=True)
 
     results_df = bertopic_model.get_topic_info()
@@ -197,11 +200,12 @@ def format_bertopic_results(results_df: pd.DataFrame, representative_docs: dict[
 @app.command()
 @use_yaml_config()
 def main(
-        datapath: Annotated[Path, typer.Option(
+        datapath: Annotated[Path, typer.Argument(
             exists=True,
-            file_okay=False,
+            file_okay=True,
             dir_okay=True,
             resolve_path=True,
+            help="Path to data - either folder holding CSV files or path to a txt file"
         )] = Path("./data"),
         embeddingspath: Annotated[Path, typer.Option(
             exists=False,
@@ -209,11 +213,12 @@ def main(
             dir_okay=False,
             resolve_path=True,
         )] = Path("./output/embeddings.pkl"),
-        resultpath: Annotated[Path, typer.Option(
+        resultpath: Annotated[Path, typer.Argument(
             exists=True,
             file_okay=False,
             dir_okay=True,
             resolve_path=True,
+            help="Folder to save results in"
         )] = Path("./output"),
         nr_representative_docs: Annotated[int, typer.Option(min=1,
                                                             help="Number of representative docs to save in intermediate Bertopic results")] = 10,
@@ -229,7 +234,7 @@ def main(
         dimensionality_reduction: Annotated[
             DimensionalityReduction, typer.Option(case_sensitive=False)] = DimensionalityReduction.umap,
         save_embeddings: Annotated[bool, typer.Option()] = False,
-        api_key: Annotated[str, typer.Option()] = None
+        api_key: Annotated[str, typer.Option(help="OpenAI API key")] = None
 ):
     datapath = Path(datapath)
     resultpath = Path(resultpath)
@@ -246,14 +251,14 @@ def main(
 
     results_df, document_embeddings, bertopic_only_results = run_bertopic_model(documents=documents,
                                                                                 embeddingspath=embeddingspath,
+                                                                                result_path=resultpath,
                                                                                 dimensionality_reduction=dimensionality_reduction,
                                                                                 clustering_model=clustering_model,
                                                                                 representationmodel=representationmodel,
                                                                                 min_topic_size=min_topic_size,
-                                                                                low_memory=low_memory,
                                                                                 nr_docs=nr_docs,
                                                                                 document_diversity=document_diversity,
-                                                                                result_path=resultpath,
+                                                                                low_memory=low_memory,
                                                                                 nr_representative_docs=nr_representative_docs,
                                                                                 prompt=prompt, api_key=api_key)
     results_df.to_csv(resultpath / "output.csv", index=False)
