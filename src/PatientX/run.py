@@ -200,7 +200,7 @@ def format_bertopic_results(results_df: pd.DataFrame, representative_docs: dict[
 @app.command()
 @use_yaml_config()
 def main(
-        datapath: Annotated[Path, typer.Option(
+        datapath: Annotated[Path, typer.Argument(
             exists=True,
             file_okay=False,
             dir_okay=True,
@@ -212,7 +212,7 @@ def main(
             dir_okay=False,
             resolve_path=True,
         )] = Path("./output/embeddings.pkl"),
-        resultpath: Annotated[Path, typer.Option(
+        resultpath: Annotated[Path, typer.Argument(
             exists=True,
             file_okay=False,
             dir_okay=True,
@@ -232,7 +232,7 @@ def main(
         dimensionality_reduction: Annotated[
             DimensionalityReduction, typer.Option(case_sensitive=False)] = DimensionalityReduction.umap,
         save_embeddings: Annotated[bool, typer.Option()] = False,
-        api_key: Annotated[str, typer.Option()] = None
+        api_key: Annotated[str, typer.Option(help="OpenAI API key")] = None
 ):
     datapath = Path(datapath)
     resultpath = Path(resultpath)
