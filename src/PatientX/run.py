@@ -202,9 +202,10 @@ def format_bertopic_results(results_df: pd.DataFrame, representative_docs: dict[
 def main(
         datapath: Annotated[Path, typer.Argument(
             exists=True,
-            file_okay=False,
+            file_okay=True,
             dir_okay=True,
             resolve_path=True,
+            help="Path to data - either folder holding CSV files or path to a txt file"
         )] = Path("./data"),
         embeddingspath: Annotated[Path, typer.Option(
             exists=False,
@@ -217,6 +218,7 @@ def main(
             file_okay=False,
             dir_okay=True,
             resolve_path=True,
+            help="Folder to save results in"
         )] = Path("./output"),
         nr_representative_docs: Annotated[int, typer.Option(min=1,
                                                             help="Number of representative docs to save in intermediate Bertopic results")] = 10,
