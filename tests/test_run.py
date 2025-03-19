@@ -54,7 +54,7 @@ def test_num_rep_docs_args(fs, nr_rep_docs_value):
         fs.add_real_directory(input_dir)
 
         result = CliRunner().invoke(app,
-                                    ["--datapath", input_dir, "--resultpath", output_dir, "--nr-representative-docs",
+                                    [str(input_dir), str(output_dir), "--nr-representative-docs",
                                      nr_rep_docs_value])
 
         assert (result.exit_code != 0) == (nr_rep_docs_value == 0)
@@ -83,11 +83,11 @@ def test_run_to_completion(fs, dimensionality_reduction_model, clustering_model,
 
         if save_embeddings:
             result = CliRunner().invoke(app,
-                                        ["--datapath", input_dir, "--resultpath", output_dir, "--min-topic-size", 10,
+                                        [str(input_dir), str(output_dir), "--min-topic-size", 10,
                                          "--document-diversity", document_diversity, "--save-embeddings"])
         else:
             result = CliRunner().invoke(app,
-                                        ["--datapath", input_dir, "--resultpath", output_dir, "--min-topic-size", 10,
+                                        [str(input_dir), str(output_dir), "--min-topic-size", 10,
                                          "--document-diversity", document_diversity, "--no-save-embeddings"])
 
         assert result.exit_code == 0
