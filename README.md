@@ -18,7 +18,7 @@ PatientX.AI offers:
 
 ## Features
 
-- **Topic Modeling:** Uses NLP algorithms to identify common themes and group them into topics related to the treatment journey.
+- **Topic Modeling:** Uses BERTopic to identify common themes and group them into topics related to the treatment journey.
 - **Topic Visualization:** Generates visualizations to help experts interpret topics identified through topic modeling
 - **Journey Map Visualization:** Generates a user-friendly journey map, visually outlining typical patient experiences and symptom patterns.
 
@@ -29,7 +29,9 @@ PatientX.AI/
 ├── data/                                     # folder to hold data to be used by pipelines
 ├── python-notebook/                          # hold python notebook and documentation
 ├── existing_code/                            # folder to hold code prior to work with GT CSSE
-│   ├──legacy_Data_sempling_topic_modeling.r  # R script for running pipeline
+│   └──legacy_Data_sempling_topic_modeling.r  # R script for running pipeline
+└── src                                       # source code for PatientX.AI pipeline
+└── tests                                     # tests
 └── README.md     
 ```
 
