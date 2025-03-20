@@ -79,8 +79,10 @@ def read_data(filepath: Path) -> List[str]:
     :return: list of documents
     """
     if filepath.is_dir():
+        sys.stdout.write("Reading data from directory...\n")
         return read_csv_files_in_directory(filepath)
     elif filepath.is_file() and filepath.suffix == '.txt':
+        sys.stdout.write("Reading data from txt file...\n")
         return read_data_in_txt_file(filepath)
 
     sys.stdout.write("ERROR: Incorrect data format - please check README for proper data format\n")
