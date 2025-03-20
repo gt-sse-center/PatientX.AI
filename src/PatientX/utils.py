@@ -13,6 +13,20 @@ import openai
 import pandas as pd
 
 
+def read_data_in_txt_file(filepath: Path) -> List[str]:
+    """
+    Read data in from txt file
+
+    :param filepath: path to txt file
+    :return: list of documents (each new line is treated as a document)
+    """
+    if filepath.is_file():
+        with filepath.open() as f:
+            return f.readlines()
+
+    return []
+
+
 def read_csv_files_in_directory(datafolder: Path) -> List[str]:
     """
     Read in data from all CSV files in directory
@@ -58,7 +72,29 @@ def read_csv_files_in_directory(datafolder: Path) -> List[str]:
     return cleaned_text.tolist()
 
 
+def read_data(filepath: Path) -> List[str]:
+    """
+    Read in data from directory/txt file. If a directory is given, data will be parsed from all csv files in the directory. If a txt file is given, each new line will be treated as it's own document
+    :param filepath: path to directory or file to read data in from
+    :return: list of documents
+    """
+    if filepath.is_dir():
+        sys.stdout.write("Reading data from directory...\n")
+        return read_csv_files_in_directory(filepath)
+    elif filepath.is_file() and filepath.suffix == '.txt':
+        sys.stdout.write("Reading data from txt file...\n")
+        return read_data_in_txt_file(filepath)
+
+    sys.stdout.write("ERROR: Incorrect data format - please check README for proper data format\n")
+    return []
+
+
 def load_bertopic_model_from_pkl(filepath: Path):
+    """
+
+    :param filepath: path to pkl file
+    :return: loaded model or None if filepath does not exist
+    """
     if filepath.exists():
         return BERTopic.load(str(filepath))
 

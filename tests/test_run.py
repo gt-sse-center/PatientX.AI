@@ -5,7 +5,7 @@ import pandas as pd
 from pathlib import Path
 import pytest
 
-from PatientX.utils import read_csv_files_in_directory
+from PatientX.utils import read_csv_files_in_directory, read_data_in_txt_file, read_data
 from PatientX.run import app
 
 dimensionality_reduction_models = [
@@ -126,3 +126,47 @@ def test_read_csv_files_incorrect_structure():
     # assert something that is not a directory raises a NotADirectory error
     with pytest.raises(NotADirectoryError):
         read_csv_files_in_directory(missing_dir)
+
+
+# List of tuples containing txt file contents and the expected return value of read_data_in_txt_file()
+content_expected_pairs = [
+    ("", []),
+    ("a\nb\nc\nd\n", ["a\n", "b\n", "c\n", "d\n"]),
+    ("\n", ["\n"]),
+    ("ab\n\n", ["ab\n", "\n"]),
+    ("!@\naf\n", ["!@\n", "af\n"])
+]
+
+@pytest.mark.parametrize("content_expected_pair", content_expected_pairs)
+def test_read_data_in_txt_file(fs, content_expected_pair):
+    fs.create_file("file.txt", contents=content_expected_pair[0])
+
+    read_content = read_data_in_txt_file(Path("file.txt"))
+
+    assert read_content == content_expected_pair[1]
+
+
+def test_read_data_std_output(fs, capfd):
+    fs.create_file("file.txt", contents="")
+    fs.create_file("dir/file.csv")
+
+    # check that read_data() detects a txt file
+    read_data(Path("file.txt"))
+    assert "Reading data from txt file..." in capfd.readouterr().out
+
+    # check that read_data() detects a directory
+    read_data(Path("dir"))
+    assert "Reading data from directory..." in capfd.readouterr().out
+
+    # check that read_data() prints an error for passing in a csv file instead of a directory
+    read_data(Path("dir/file.csv"))
+    assert "ERROR: Incorrect data format" in capfd.readouterr().out
+
+    # check that read_data() prints and error for passing in a non-existent file
+    read_data(Path("dir/dir/file.txt"))
+    assert "ERROR: Incorrect data format" in capfd.readouterr().out
+
+
+
+def test_read_data_in_txt_file_nonexistent_file(fs):
+    assert read_data_in_txt_file(Path("file.txt")) == []

@@ -21,7 +21,7 @@ import typer
 from typer_config.decorators import use_yaml_config
 
 from PatientX.models.BERTopicModel import BERTopicModel
-from PatientX.utils import read_csv_files_in_directory, get_representation_model
+from PatientX.utils import read_data, get_representation_model
 from PatientX.RepresentationModel import RepresentationModel
 
 app = typer.Typer()
@@ -241,7 +241,7 @@ def main(
     embeddingspath = Path(embeddingspath)
 
     sys.stdout.write("Reading data...\n")
-    documents = read_csv_files_in_directory(datapath)
+    documents = read_data(datapath)
 
     if len(documents) == 0:
         sys.stdout.write("No data found\n")
