@@ -40,6 +40,42 @@ PatientX.AI/
 1. Clone the repository:
    ```bash
    git clone https://github.com/your-username/PatientX.AI.git
+   ```
+
+## Create and Activate a Virtual Environment
+
+### Step 1: Create a Virtual Environment
+To create a virtual environment, navigate to your project directory and run:
+
+```bash
+# For Windows
+python -m venv venv
+
+# For macOS and Linux
+python3 -m venv venv
+```
+This will create a folder named venv that contains the virtual environment.
+
+### Step 2: Activate the Virtual Environment
+```bash
+# For Windows
+.\venv\Scripts\activate
+
+# For macOS and Linux
+source venv/bin/activate
+```
+
+After activation, you should see the virtual environment’s name prefixed to your terminal prompt, indicating it’s active.
+
+## Installing Dependencies
+Ensure you’re in the project’s root directory (where `pyproject.toml` is located) and run:
+```bash
+pip install -e .
+```
+
+- The `-e` option installs the package in “editable” mode, allowing you to make changes without reinstalling.
+- This will also install any dependencies specified in requirements.txt or pyproject.toml.
+
 
 ## Running Pipelines
 

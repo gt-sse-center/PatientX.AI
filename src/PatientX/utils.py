@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List
 
 from PatientX.models.MistralRepresentation import MistralRepresentation
-from PatientX.RepresentationModel import RepresentationModel
+from PatientX.RepresentationModelEnum import RepresentationModel
 
 from bertopic import BERTopic
 from bertopic.representation import OpenAI

@@ -22,7 +22,7 @@ from typer_config.decorators import use_yaml_config
 
 from PatientX.models.BERTopicModel import BERTopicModel
 from PatientX.utils import read_data, get_representation_model
-from PatientX.RepresentationModel import RepresentationModel
+from PatientX.RepresentationModelEnum import RepresentationModel
 
 app = typer.Typer()
 
