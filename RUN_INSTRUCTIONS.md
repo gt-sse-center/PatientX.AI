@@ -1,4 +1,4 @@
-# Running on a Server
+# Running the PatientX.AI Pipeline
 
 This guide outlines the steps to set up and run **PatientX** on a server, including configuring a new installation directory, creating a virtual environment, and running the required scripts.
 
@@ -16,7 +16,7 @@ tmux new -s session_name
 
 ---
 
-## 2. SSH into HPC Cluster
+## 2. SSH into HPC Cluster (optional but recommended for large datasets, LLM interpretation)
 
 SSH into the HPC platform where you would like to run the PatientX code
 
@@ -112,7 +112,7 @@ To run the PatientX.AI code
 1. Update the config file with your desired parameters
 2. Run the pipeline using
 ```bash
-python src/PatientX/run.py
+python src/PatientX/run.py <datapath> <resultpath>
 ```
 3. For help, run
 ```bash

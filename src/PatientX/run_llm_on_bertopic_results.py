@@ -3,7 +3,7 @@ from pathlib import Path
 import typer
 from typing_extensions import Annotated
 
-from PatientX.RepresentationModel import RepresentationModel
+from PatientX.RepresentationModelEnum import RepresentationModel
 from PatientX.utils import load_bertopic_model_from_pkl, get_representation_model
 
 DEFAULT_PROMPT = """
