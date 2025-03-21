@@ -4,7 +4,7 @@
 /data/*
 !/data/test_data/
 !/data/test_data/**
-!/data/README.md
+!/data/DATA_FORMAT.md
 
 /src/PatientX.egg-info
 /src/PatientX/models/__pycache__
