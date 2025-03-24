@@ -88,7 +88,7 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, result_path: 
                        dimensionality_reduction: DimensionalityReduction,
                        clustering_model: ClusteringModel, representationmodel: RepresentationModel, min_topic_size: int,
                        nr_docs: int, document_diversity: float, low_memory: bool,
-                       nr_representative_docs: int, prompt: str, api_key: str) -> tuple[
+                       nr_representative_docs: int, prompt: str, chat_flag: bool, api_key: str) -> tuple[
 
     DataFrame, ndarray | Any, tuple[Any, dict[int, list[tuple[str | list[str], Any] | tuple[str, float]]]]]:
     """
@@ -107,6 +107,7 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, result_path: 
     :param low_memory: low memory flag
     :param nr_representative_docs: Number of representative docs to pass to representation model
     :param prompt: prompt for LLM
+    :param chat_flag: flag to indicate whether to use chat (True) or generate (False)
     :param api_key: OpenAI API key
 
     :return: tuple of pd.DataFrame holding results and tensor holding document embeddings
@@ -114,7 +115,7 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, result_path: 
     """
     representation_model = get_representation_model(model_type=representationmodel, nr_docs=nr_docs,
                                                     document_diversity=document_diversity, api_key=api_key,
-                                                    prompt=prompt)
+                                                    prompt=prompt, chat_flag=chat_flag)
 
     medical_embedding_model = SentenceTransformer('pritamdeka/S-PubMedBert-MS-MARCO')
     custom_stop_words = list(
@@ -234,6 +235,7 @@ def main(
         dimensionality_reduction: Annotated[
             DimensionalityReduction, typer.Option(case_sensitive=False)] = DimensionalityReduction.umap,
         save_embeddings: Annotated[bool, typer.Option()] = False,
+        chat_flag: Annotated[bool, typer.Option()] = False,
         api_key: Annotated[str, typer.Option(help="OpenAI API key")] = None
 ):
     datapath = Path(datapath)
@@ -260,7 +262,7 @@ def main(
                                                                                 document_diversity=document_diversity,
                                                                                 low_memory=low_memory,
                                                                                 nr_representative_docs=nr_representative_docs,
-                                                                                prompt=prompt, api_key=api_key)
+                                                                                prompt=prompt, chat_flag=chat_flag, api_key=api_key)
     results_df.to_csv(resultpath / "output.csv", index=False)
 
     representative_docs, bertopic_representative_words = bertopic_only_results
