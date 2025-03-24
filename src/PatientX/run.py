@@ -26,9 +26,12 @@ from PatientX.RepresentationModelEnum import RepresentationModel
 
 app = typer.Typer()
 
-# Chat mode indicates that documents will be sent for each topic one by one. The LLM used for interpretation will maintain context across calls\
-# When using "generate", all documents from all topics will be sent at once and the LLM will provide a topic description for all topics in one go
-# There may be slight differences in topic quality based on the two options (larger datasets with long documents will likely prefer to use chat)
+# Chat mode indicates that documents will be sent for each topic one by one. The LLM used for interpretation will
+# maintain context across calls. When using "generate", all documents from all topics will be sent at once and the LLM
+# will provide a topic description for all topics in one go. There may be slight differences in topic quality based on
+# the two options (larger datasets with long documents will likely prefer to use chat)
+#
+# Comment out/uncomment the appropriate mode for your use case
 
 MODE = "generate"
 # MODE = "chat"
