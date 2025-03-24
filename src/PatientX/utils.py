@@ -102,7 +102,7 @@ def load_bertopic_model_from_pkl(filepath: Path):
 
 
 def get_representation_model(model_type: RepresentationModel, nr_docs: int = 10, document_diversity: float = 0.1,
-                             api_key: str = None, openai_model_name="gpt-4o", prompt=None, mode="chat"):
+                             api_key: str = None, openai_model_name="gpt-4o", prompt=None, mode="generate"):
     """
     Get an instance of the chosen representation model
 
