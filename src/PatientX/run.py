@@ -94,7 +94,7 @@ def get_clustering_model(clustering_model: ClusteringModel) -> Optional[ClusterM
             sys.stdout.write("WARNING: Unknown clustering model - defaulting to hdbscan\n")
 
 
-def run_bertopic_model(documents: List[str], embeddingspath: Path, result_path: Path,
+def run_bertopic_model(documents: List[str], embeddingspath: Optional[Path], result_path: Path,
                        dimensionality_reduction: DimensionalityReduction,
                        clustering_model: ClusteringModel, representationmodel: RepresentationModel, min_topic_size: int,
                        nr_docs: int, document_diversity: float, low_memory: bool,
@@ -146,7 +146,7 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, result_path: 
                                    nr_representative_docs=nr_representative_docs)
 
     document_embeddings = None
-    if embeddingspath.is_file():
+    if embeddingspath is not None and embeddingspath.is_file():
         sys.stdout.write("Loading embeddings...\n")
         try:
             document_embeddings = pickle.load(open(embeddingspath, "rb"))
@@ -222,7 +222,7 @@ def main(
             file_okay=True,
             dir_okay=False,
             resolve_path=True,
-        )] = Path("./output/embeddings.pkl"),
+        )] = None,
         resultpath: Annotated[Path, typer.Argument(
             exists=True,
             file_okay=False,
@@ -248,7 +248,7 @@ def main(
 ):
     datapath = Path(datapath)
     resultpath = Path(resultpath)
-    embeddingspath = Path(embeddingspath)
+    embeddingspath = Path(embeddingspath) if embeddingspath is not None else None
 
     sys.stdout.write("Reading data...\n")
     documents = read_data(datapath)
