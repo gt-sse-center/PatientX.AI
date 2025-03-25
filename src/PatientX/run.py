@@ -26,6 +26,16 @@ from PatientX.RepresentationModelEnum import RepresentationModel
 
 app = typer.Typer()
 
+# Chat mode indicates that documents will be sent for each topic one by one. The LLM used for interpretation will
+# maintain context across calls. When using "generate", all documents from all topics will be sent at once and the LLM
+# will provide a topic description for all topics in one go. There may be slight differences in topic quality based on
+# the two options (larger datasets with long documents will likely prefer to use chat)
+#
+# Comment out/uncomment the appropriate mode for your use case
+
+MODE = "generate"
+# MODE = "chat"
+
 
 class ClusteringModel(str, Enum):
     """
@@ -114,7 +124,7 @@ def run_bertopic_model(documents: List[str], embeddingspath: Path, result_path: 
     """
     representation_model = get_representation_model(model_type=representationmodel, nr_docs=nr_docs,
                                                     document_diversity=document_diversity, api_key=api_key,
-                                                    prompt=prompt)
+                                                    prompt=prompt, mode=MODE)
 
     medical_embedding_model = SentenceTransformer('pritamdeka/S-PubMedBert-MS-MARCO')
     custom_stop_words = list(

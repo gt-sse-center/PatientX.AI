@@ -102,7 +102,7 @@ def load_bertopic_model_from_pkl(filepath: Path):
 
 
 def get_representation_model(model_type: RepresentationModel, nr_docs: int = 10, document_diversity: float = 0.1,
-                             api_key: str = None, openai_model_name="gpt-4o", prompt=None):
+                             api_key: str = None, openai_model_name="gpt-4o", prompt=None, mode="generate"):
     """
     Get an instance of the chosen representation model
 
@@ -110,15 +110,17 @@ def get_representation_model(model_type: RepresentationModel, nr_docs: int = 10,
     :param model_type: Representation model enum
     :param nr_docs: number of docs to pass into the representation model
     :param document_diversity: document diversity parameter for choosing docs to passing to the representation model
+    :param mode: "chat" or "generate"
+
     :return: instance of the chosen representation model
     """
     match model_type:
         case "mistral-small":
             return MistralRepresentation(nr_docs=nr_docs, diversity=np.clip(document_diversity, 0, 1),
-                                         api="generate", prompt=prompt)
+                                         api=mode, prompt=prompt)
         case "gpt4o":
             client = openai.OpenAI(api_key=api_key)
 
-            return OpenAI(client=client, model=openai_model_name, prompt=prompt, chat=True)
+            return OpenAI(client=client, model=openai_model_name, prompt=prompt, chat=(mode == "chat"))
         case _:
             return None
